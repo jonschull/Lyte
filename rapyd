@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""
+rapyd is meant to mimic python
+From the command line, "rapyd hello.py" and "python hello.py" should do the same thing.
+"""
+
+import sys
+pyfile = sys.argv[1]
+command= 'rapydscript '+ pyfile + ' | node'
+
+import subprocess 
+subprocess.call(command, shell=True)
