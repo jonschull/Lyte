@@ -14,5 +14,6 @@ def say(s):
     else:
         print(s)    
 
-say(language + ' via ' + context)
-say('next...we do imports...')
+if __name__=='__main__':
+    say(language + ' via ' + context)
+    say('next...we do imports...')

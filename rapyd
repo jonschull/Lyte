@@ -30,17 +30,20 @@ https://www.npmjs.com/package/rapydscript#available-libraries
 
 
 """
+
 import subprocess 
+
 def do(command):
     print('::', command)
-    subprocess.call(command, shell=True)
+    p=subprocess.call(command, shell=True)
+    if p:sys.exit('rapyd aborted')
     
-def makeHTML(pyFilename):
-    pyFileHTML = pyFilename+'.html'
-    pyFileJS =   pyFilename+'.js'
-    print('::  creating', pyFileHTML)
+def makeHTML(pyjName):
+    HTMLname = pyjName.replace('.pyj', '.html')
+    jsName =   pyjName.replace('.pyj', '.js'  )
+    print('::  creating', HTMLname)
      
-    f = open(pyFileHTML, 'w')
+    f = open(HTMLname, 'w')
     f.write("""
     <html>
         <head> <meta charset="UTF-8"> 
@@ -49,23 +52,30 @@ def makeHTML(pyFilename):
            <script type="text/javascript" language="javascript" src="pyFileJS">
            </script>
         </body>
-    </html>""".replace('pyFileJS', pyFileJS))
+    </html>""".replace('pyFileJS', jsName))
     
-    return pyFileHTML
+    return HTMLname
     
 import sys
-pyFilename = sys.argv[1]
-pyFileJS= pyFilename+'.js'
 
-#create py.js file (not currently using the minimalizing -m flag) 
-do('rapydscript ' + pyFilename + ' -o ' + pyFileJS) 
+pyjName = sys.argv[1]
+if not pyjName.endswith('.pyj'): 
+    sys.exit("""ERROR:  I need a .pyj file""")
+    
 
-#run the py file (not the pyFileJS file)
-do ('rapydscript -x ' + pyFilename )
+#run the py file 
+do ('rapydscript -x ' + pyjName )
 
-#create the html file needed to run in the browser
-do('open ' + makeHTML(pyFilename) )
+#create .js file (for inclusion in HTML)
+jsName= pyjName.replace('.pyj', '.js')
+do('rapydscript ' + pyjName + ' -o ' + jsName) 
 
+#also create a virtual .py from the .pyj  so python will have something to import
+pyName = pyjName.replace('.pyj','.py')
+do(f'ln -s -f  {pyjName} {pyName}')
+
+#create the html file (use the py.js file); open in browser
+do('open ' + makeHTML(pyjName) )
 
 
 
