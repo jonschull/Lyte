@@ -7,6 +7,17 @@ def make_lyte_pyj():
     pyj.write(mytext)
     pyj.close()
 
+def copy_callingScript_to_pyj():
+    """this makes the callingScript importable and usable by rapydscript.
+    NOTE: this script(pyonly.py) undoes this process for pyonly.pyj, mocking its own commands
+    to hide them from rapyscript.
+    """
+    import sys
+    callingScript = sys.argv[0]
+    pyj=open(callingScript.replace('.py', '.pyj'), 'w')
+    pyj.write(open(callingScript).read())
+    pyj.close()
+    print(f'::lyte:: created {pyj}')
 
 def makeHTMLandJS(openBrowser=True):
     HTMLname = pyName.replace('.py', '.html')

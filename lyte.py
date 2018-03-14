@@ -1,7 +1,9 @@
 import pyonly
 
 #we need a copy of this file for rapydscript to import
-pyonly.make_lyte_pyj()
+
+pyonly.make_lyte_pyj() 
+pyonly.copy_callingScript_to_pyj()
 
 def runRS():
     """use the RapydScript python-to-javascript transpiler"""
@@ -42,6 +44,7 @@ def blurt(s):
         alert(s) #will work in browser
     except:
         say(s)  #will work otherwise
+        
 
 if __name__=='__main__':
     say(  f'saying:   {language} in {context}')  #Lyte REQUIRES PYTHON3
