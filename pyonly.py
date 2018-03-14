@@ -12,7 +12,7 @@ def makeHTMLandJS(openBrowser=True):
     HTMLname = pyName.replace('.py', '.html')
     JSname =   pyName.replace('.py', '.js'  )
 
-    print(f':::: making {JSname} and {HTMLname}::::')
+    print(f'::webME:: making {JSname} and {HTMLname}::::')
     HTMLfile = open(HTMLname, 'w')
     content = f""" <html>
         <head> <meta charset="UTF-8"> 
@@ -39,7 +39,7 @@ def makeHTMLandJS(openBrowser=True):
 def runRapydscript():
     from plumbum import local
     rs=local['/Users/jonschull-MBPR/rapydscript-ng/rapydscript-ng/bin//rapydscript']
-    print('---rapydscript---')
+    print('\n >>> rapydscript -x', pyName,'\n')
     print(rs('-x', pyName) )
 
 
