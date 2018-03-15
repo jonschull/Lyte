@@ -1,9 +1,8 @@
 import pyonly
-
 #we need a copy of this file for rapydscript to import
 
-pyonly.make_lyte_pyj() 
-pyonly.copy_callingScript_to_pyj()
+pyonly.make_pyjs() 
+#pyonly.copy_Scripts_to_pyj()
 
 def runRS():
     """use the RapydScript python-to-javascript transpiler"""
