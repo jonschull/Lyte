@@ -20,12 +20,13 @@ def make_pyjs():
 make_pyjs()  #THIS IS AUTOMATICALLY EXECUTED WHEN PYONLY.py IS IMPORTED UNDER PYTHON
     
 def makeHTMLandJS(openBrowser=True):
+    verbose = False
     from sys import argv
     pyName = argv[0]
     HTMLname = pyName.replace('.py', '.html')
     JSname =   pyName.replace('.py', '.js'  )
 
-    print(f'::webME:: making {JSname} and {HTMLname}::::')
+    if verbose: print(f'::webME:: making {JSname} and {HTMLname}::::')
     HTMLfile = open(HTMLname, 'w')
     content = f""" <html>
         <head> <meta charset="UTF-8"> 

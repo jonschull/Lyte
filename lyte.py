@@ -12,7 +12,6 @@ def webMe():
     """generate an HTML page"""
     pyonly.makeHTMLandJS()
 
-
 #determine language
 try: 
     if globals(): language='Python'
@@ -20,8 +19,8 @@ except ReferenceError:
     language = 'Rapydscript'
     
 #determine context
-try:  #if this works, we're in the browser
-    document.body.innerHTML+= '<hr/>\n' 
+try:  
+    document.body.innerHTML+= '<hr/>\n'   #if this works, we're in the browser
     context='browser'
 except:
     context='shell'
@@ -30,10 +29,15 @@ def _appendToBody(s):
     """ this is called by say if we are in the browser """
     document.body.innerHTML+= s + '<br/>\n'
     
-def say(s):
+def say(s,**kwargs):
     """prints to screen or webpage"""
     if context=='browser':
-        _appendToBody(s)
+        if 'tag' in kwargs:
+            tag=kwargs['tag']
+            _appendToBody(f'<{tag}>{s}</{tag}>')
+        else:
+           _appendToBody(s)
+             
     else:
        print(s)
        
@@ -46,8 +50,9 @@ def blurt(s):
         
 
 if __name__=='__main__':
-    say(  f'saying:   {language} in {context}')  #Lyte REQUIRES PYTHON3
-    print(f'printing: {language} in {context}')
+    say(  f'saying:   {language} in {context}', tag='h3')  #Lyte REQUIRES PYTHON3
+    print(f'printing: {language} in {context} (writes to console in browser) ')
     blurt(f'alerting: {language} in {context}')
     #appendToBody('body??')
-
+    runRS()
+    webMe()
