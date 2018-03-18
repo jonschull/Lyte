@@ -4,7 +4,20 @@ from   selenium.webdriver.common.keys import Keys
 import selenium.webdriver.chrome.service as service
 from   selenium.webdriver.chrome.options import Options
 
-#CDS is the URL to an active Chrome Driver Service 
+#CDS is the URL to an active Chrome Driver Service
+"""
+B = BrowserFromService( getCDS() , headless=False  )
+
+based on  #https://duo.com/decipher/driving-headless-chrome-with-python 
+
+on startup looks for a record of the last chromeDriverService
+
+if it's still active
+    use it
+else
+    create one and update the record  
+
+"""
 
 #try to find last chromedriver
 def CDSfromFile():
@@ -37,8 +50,18 @@ def newCDS():
     print( CDS )
     return CDS
 
+def getCDS():
+    lastCDS = CDSfromFile()
+    print('lastCDS', lastCDS)
+
+    if isActive( lastCDS ):
+        CDS = lastCDS
+    else:
+        CDS = newCDS()
+    return CDS
+
  
-def BrowserFromService( CDS, headless = False):
+def BrowserFromService( CDS=getCDS(), headless = False):
     
     chrome_options = Options()  
     if headless:
@@ -57,19 +80,10 @@ def BrowserFromService( CDS, headless = False):
     return Browser
     
     
-def getCDS():
-    lastCDS = CDSfromFile()
-    print('lastCDS', lastCDS)
-
-    if isActive( lastCDS ):
-        CDS = lastCDS
-    else:
-        CDS = newCDS()
-    return CDS
  
 if __name__== '__main__':
 
-    B = BrowserFromService(getCDS(), headless=False )
+    B = BrowserFromService(headless=True)
     
     print('going to google.com')
     B.get('http://google.com')
