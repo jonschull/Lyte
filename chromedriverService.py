@@ -18,6 +18,9 @@ else
     create one and update the record  
 
 """
+def msg(s):
+    print(s, end='..')
+
 
 #try to find last chromedriver
 def CDSfromFile():
@@ -32,7 +35,6 @@ def isActive( lastCDS ):
     if lastCDS: # let's see if it's active
         try:
             r = R.get(lastCDS)
-            print('lastChromeDriver ', lastCDS, 'is active'  )
             serviceURL = lastCDS
             return True
         except Exception as e:
@@ -52,12 +54,13 @@ def newCDS():
 
 def getCDS():
     lastCDS = CDSfromFile()
-    print('lastCDS', lastCDS)
-
+    msg(f'CDsvc:{lastCDS}?')
     if isActive( lastCDS ):
         CDS = lastCDS
+        msg('OK')
     else:
         CDS = newCDS()
+        msg('-->{CDS}')
     return CDS
 
  
