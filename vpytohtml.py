@@ -44,10 +44,9 @@ def srcFromFileName(filename='test.py'):
 
 def goToWorkspace():
     global textarea
-    #B.get('http://localhost:8080/#/user/jschull/folder/Public/program/workspace/edit')
-
-    #create fresh workspace
     B.get('http://localhost:8080/#/user/jschull/folder/Public/')
+    print('page loaded?') 
+    sleep(3)
     B.find_element_by_link_text('Create New Program').click()
     actions=ActionChains(B)
     actions.send_keys('workspace' + Keys.RETURN).perform() #THIS MAKES PAST WORK.
@@ -101,23 +100,22 @@ def createHTML( targetName ): #works but uses glowscript template
     
     print(f'{htmlName} created')
      
-from plumbum import local
+from plumbum import local, NOHUP, BG
 
 def startGlowScript():
     python=local['python']
     dev_appserver = local['/Users/jonschull-MBPR/Downloads/google-cloud-sdk/bin/dev_appserver.py']
     GSappYAML = local['/Users/jonschull-MBPR/glowscript/glowscript/app.yaml']
-    
-    python( dev_appserver, GSappYAML) & NOHUP #should run indefinitely.  NEED MEANS OF TERMINATING
-     
+    python[dev_appserver, GSappYAML] & NOHUP(stdout='/dev/null')
+    sleep(2) #give the server time to start up
     
 def GSserverIsRunning():
     try:
         requests.get('http://localhost:8080')
         msg('okGS)')
     except Exception as e:
+        msg('newGS')
         startGlowScript()
-        msg('new?')
  
 
 def vpy_to_html(targetName = 'test.py', headless=True):
@@ -151,16 +149,17 @@ def vpy_to_html(targetName = 'test.py', headless=True):
         
     #B.quit()
 
-def createTestPy():
+def createTestPy(timestamp=''):
     msg('creating test.py')
     with open('test.py', 'w') as f:
-        f.write("""
+        f.write(f"""
 import DICT
 box()
 print('this is test.py')
 def f():
     print('this is a function')
 f()
+print("{timestamp}")
 """)
 
 if __name__=='__main__':
@@ -171,7 +170,8 @@ if __name__=='__main__':
         pyFile = sys.argv[1]
     else:
         pyFile='test.py'
-        createTestPy()
+        import time
+        createTestPy(time.strftime('%X %x %Z'))
     
     vpy_to_html( pyFile, headless=True)
     
