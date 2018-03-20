@@ -1,0 +1,23 @@
+alerthi.py
+lyte.py
+manifest.txt
+pyonly.py
+
+recipe:
+    python3 alerthi.py
+
+
+imports
+    pyonly.py:    import sys
+    pyonly.py:from modulefinder import ModuleFinder
+    pyonly.py:    import os
+    pyonly.py:    """this makes the focal scripts and its imports importable and usable by rapydscript.
+    pyonly.py:    import sys
+    pyonly.py:    from plumbum import local
+    pyonly.py:    from plumbum import local
+
+requires 
+    sys
+    modulefinder
+    os
+    plumbum
