@@ -1,16 +1,18 @@
 import pyonly
 #we need a copy of this file for rapydscript to import
 
-pyonly.make_pyjs() 
-#pyonly.copy_Scripts_to_pyj()
+#pyonly.make_lyte_pyj() 
 
-def runRS():
+def runRS(quiet=False):
     """use the RapydScript python-to-javascript transpiler"""
+    pyonly.copy_Scripts_to_pyj(quiet)
     pyonly.runRapydscript()
     
-def webMe():
+def webMe(quiet=False):
     """generate an HTML page"""
-    pyonly.makeHTMLandJS()
+    pyonly.copy_Scripts_to_pyj(quiet)
+    pyonly.makeHTMLandJS(quiet)
+
 
 #determine language
 try: 
@@ -19,8 +21,8 @@ except ReferenceError:
     language = 'Rapydscript'
     
 #determine context
-try:  
-    document.body.innerHTML+= '<hr/>\n'   #if this works, we're in the browser
+try:  #if this works, we're in the browser
+    document.body.innerHTML+= '<hr/>\n' 
     context='browser'
 except:
     context='shell'
@@ -29,15 +31,10 @@ def _appendToBody(s):
     """ this is called by say if we are in the browser """
     document.body.innerHTML+= s + '<br/>\n'
     
-def say(s,**kwargs):
+def say(s):
     """prints to screen or webpage"""
     if context=='browser':
-        if 'tag' in kwargs:
-            tag=kwargs['tag']
-            _appendToBody(f'<{tag}>{s}</{tag}>')
-        else:
-           _appendToBody(s)
-             
+        _appendToBody(s)
     else:
        print(s)
        
@@ -50,9 +47,8 @@ def blurt(s):
         
 
 if __name__=='__main__':
-    say(  f'saying:   {language} in {context}', tag='h3')  #Lyte REQUIRES PYTHON3
-    print(f'printing: {language} in {context} (writes to console in browser) ')
+    say(  f'saying:   {language} in {context}')  #Lyte REQUIRES PYTHON3
+    print(f'printing: {language} in {context}')
     blurt(f'alerting: {language} in {context}')
     #appendToBody('body??')
-    runRS()
-    webMe()
+

@@ -1,32 +1,73 @@
-def XXXmake_pyj():
-    from sys import argv
-    pyName = argv[0]
-    pyjName   = pyName.replace('.py', '.pyj')
-    pycode=open(pyName).read()
-    pyj   =open(pyjName,'w')
-    pyj.write(pycode)
+""" pyonly.py is for lyte commands that should 
+    do something under python
+    do nothing under rapydscript, 
+        yet not choke the rapydscript compiler when lyte imports pyonly
+        
+    the trick is 
+        1) to hide all python-specific imports within functions
+            (because at compile time, the compiler doesn't test imports within functions)  
+        2) to create a mocked up pyonly.pyj that is will allow rapydscrpyt to  find neutered pyonly functions (e.g., when imported by lyte).
+        
+    (a simpler trick might have been to 
+        1) resolve that only lyte would import pyonly
+        2) remove "import lyte" before having rapydscpyt compile lyte ) 
+        
+    
+"""
+
+def getPyName():
+    import sys
+    pyName=sys.argv[0]
+    return pyName
+
+def make_lyte_pyj():
+    mytext=open('lyte.py').read()
+    pyj=open('lyte.pyj','w')
+    pyj.write(mytext)
     pyj.close()
 
-def make_pyjs():
-    from sys import argv
-    pyName = argv[0]
-    ###import make_pyjs
-    #make_pyjs.make_pyjs(pyName) #for some reason this makes rapydscript try to import sys
-    #                            # and fail. Whereas my_pyj above does not cause the sys failure
-    from plumbum import local
-    python3 = local['python3']
-    print( python3('make_pyjs.py', pyName)  )
+from modulefinder import ModuleFinder
+
+def relevantPyFiles(focalScript = 'test.py'):
+    """return list of relevant pyfiles for copy_scripts_to_pyj"""
     
-make_pyjs()  #THIS IS AUTOMATICALLY EXECUTED WHEN PYONLY.py IS IMPORTED UNDER PYTHON
-    
-def makeHTMLandJS(openBrowser=True):
-    verbose = False
-    from sys import argv
-    pyName = argv[0]
+    finder = ModuleFinder(['.'])   #TODO don't just search local directories; search "relevant" directories
+    finder.run_script(focalScript)
+
+    import os
+
+    relevantPyFiles=[]
+    for name, mod in finder.modules.items():
+        if os.path.isfile(name+'.py'):
+            relevantPyFiles.append(name+'.py')
+            #print(f' {name}.py', end='\t: ')
+            #print(', '.join(list(mod.globalnames.keys())))
+
+    return(relevantPyFiles)
+
+def copy_Scripts_to_pyj(quiet=False):
+    """this makes the focal scripts and its imports importable and usable by rapydscript.
+    NOTE: *this* script(pyonly.py) treas pyonly.pyj special, mocking its own commands
+    to hide them from rapyscript.
+    """
+    import sys
+    callingScript = sys.argv[0]
+    pyFileNames = [callingScript] + relevantPyFiles(callingScript)
+    for pyFileName in pyFileNames:
+        if pyFileName != 'pyonly.py':
+            pyjName = pyFileName.replace('.py', '.pyj')
+            pyj = open( pyjName, 'w')
+            pyj.write( open(pyFileName).read() )
+            pyj.close()
+            if not quiet:
+                print(f'::lyte:: created {pyjName}')
+
+def makeHTMLandJS(openBrowser=True, quiet=True):
+    pyName = getPyName()
     HTMLname = pyName.replace('.py', '.html')
     JSname =   pyName.replace('.py', '.js'  )
-
-    if verbose: print(f'::webME:: making {JSname} and {HTMLname}::::')
+    if not quiet:
+        print(f'::webME:: making {JSname} and {HTMLname}::::')
     HTMLfile = open(HTMLname, 'w')
     content = f""" <html>
         <head> <meta charset="UTF-8"> 
@@ -39,21 +80,22 @@ def makeHTMLandJS(openBrowser=True):
     
     HTMLfile.write(content)
     HTMLfile.close()
+    #print(content)
+    
     from plumbum import local
     rs=local['/Users/jonschull-MBPR/rapydscript-ng/rapydscript-ng/bin//rapydscript']
-
+    rs('-x', pyName)
     rs(pyName, '-o', JSname)
     if openBrowser:
         browser=local['open']
         browser(HTMLname)
- 
+    
     
 def runRapydscript():
+    pyName = getPyName()
     from plumbum import local
-    from sys import argv
-    pyName = argv[0]
     rs=local['/Users/jonschull-MBPR/rapydscript-ng/rapydscript-ng/bin//rapydscript']
-    print('\n >>rRS>> rapydscript -x', pyName,'\n')
+    print('\n >>> rapydscript -x', pyName,'\n')
     print(rs('-x', pyName) )
 
 
@@ -67,6 +109,6 @@ for dirObj in dir():
 pyjFile.close()
 
 if __name__=='__main__':
+    pyName = getPyName()
     print('can not test makeHTMLandJS() with itself')
     print('test by running....    python3 sayhi.py    ')
-    #print(relevantPyFiles('lyte.py'))
