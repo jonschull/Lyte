@@ -81,7 +81,6 @@ def makeHTMLandJS(openBrowser=True, quiet=True):
     HTMLfile.write(content)
     HTMLfile.close()
     #print(content)
-    
     from plumbum import local
     rs=local['/Users/jonschull-MBPR/rapydscript-ng/rapydscript-ng/bin//rapydscript']
     rs('-x', pyName)

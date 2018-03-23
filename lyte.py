@@ -8,10 +8,10 @@ def runRS(quiet=False):
     pyonly.copy_Scripts_to_pyj(quiet)
     pyonly.runRapydscript()
     
-def webMe(quiet=False):
+def webMe(quiet=False, openBrowser=False):
     """generate an HTML page"""
     pyonly.copy_Scripts_to_pyj(quiet)
-    pyonly.makeHTMLandJS(quiet)
+    pyonly.makeHTMLandJS(quiet=quiet, openBrowser=openBrowser)
 
 
 #determine language
@@ -50,5 +50,6 @@ if __name__=='__main__':
     say(  f'saying:   {language} in {context}')  #Lyte REQUIRES PYTHON3
     print(f'printing: {language} in {context}')
     blurt(f'alerting: {language} in {context}')
-    #appendToBody('body??')
+    runRS()
+    webMe(openBrowser=True)
 
