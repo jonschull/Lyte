@@ -81,24 +81,51 @@ def getEmbeddableSrc( ):
     embeddableSrc = B.find_element_by_css_selector('.embedSource').text
     return embeddableSrc
 
-def createHTML( targetName ): #works but uses glowscript template
+##def OLDcreateHTML( targetName ): #works but depends on glowscript server
+##    src = getEmbeddableSrc( )
+##    src = src.split('<![CDATA[//><!--')[1]
+##    htmlName = targetName.replace('.py', '.html')
+##    
+##    f=open( htmlName, 'w' )
+##    f.write(f"""<div id="glowscript" class="glowscript">
+##<link type="text/css" href="http://localhost:8080/css/redmond/jquery-ui.custom.css" rel="stylesheet" />
+##<link type="text/css" href="http://localhost:8080/css/ide.css" rel="stylesheet" />
+##<script type="text/javascript" language="javascript" src="http://localhost:8080/lib/jquery/IDE/jquery.min.js"></script>
+##<script type="text/javascript" language="javascript" src="http://localhost:8080/lib/jquery/IDE/jquery-ui.custom.min.js"></script>
+##<script type="text/javascript"                       src="http://localhost:8080/package/glow.2.7.min.js"></script>
+##<script type="text/javascript"                       src="http://localhost:8080/package/RSrun.2.7.min.js"></script>
+##<script type="text/javascript"><!--//--><![CDATA[//><!--
+##{src}  """)
+##    f.close()
+##    
+##    print(f'{htmlName} created')
+##     
+
+
+def createHTML( targetName ): #works; depends on glowscript server for scripts but creates directory that is free standing.
     src = getEmbeddableSrc( )
     src = src.split('<![CDATA[//><!--')[1]
-    htmlName = targetName.replace('.py', '.html')
+    folderName = targetName.replace('.py', '')
     
-    f=open( htmlName, 'w' )
+    import SSstache
+    newDirs = SSstache.makeHTMLdir()
+    filepath = newDirs['HTMLdir'] + '/' + 'index.html'
+    f=open( filepath , 'w' )
     f.write(f"""<div id="glowscript" class="glowscript">
-<link type="text/css" href="http://localhost:8080/css/redmond/jquery-ui.custom.css" rel="stylesheet" />
-<link type="text/css" href="http://localhost:8080/css/ide.css" rel="stylesheet" />
-<script type="text/javascript" language="javascript" src="http://localhost:8080/lib/jquery/IDE/jquery.min.js"></script>
-<script type="text/javascript" language="javascript" src="http://localhost:8080/lib/jquery/IDE/jquery-ui.custom.min.js"></script>
-<script type="text/javascript"                       src="http://localhost:8080/package/glow.2.7.min.js"></script>
-<script type="text/javascript"                       src="http://localhost:8080/package/RSrun.2.7.min.js"></script>
+
+<link type="text/css" href="supportScripts/redmond/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="supportScripts/ide.css" rel="stylesheet" />
+
+<script type="text/javascript" language="javascript" src="supportScripts/jquery.min.js"></script>
+<script type="text/javascript" language="javascript" src="supportScripts/jquery-ui.custom.min.js"></script>
+<script type="text/javascript"                       src="supportScripts/glow.2.7.min.js"></script>
+<script type="text/javascript"                       src="supportScripts/RSrun.2.7.min.js"></script>
 <script type="text/javascript"><!--//--><![CDATA[//><!--
 {src}  """)
     f.close()
     
-    print(f'{htmlName} created')
+    print(f'Created {filepath}' )
+    return filepath
      
 from plumbum import local, NOHUP, BG
 
@@ -118,7 +145,7 @@ def GSserverIsRunning():
         startGlowScript()
  
 
-def vpy_to_html(targetName = 'test.py', headless=True):
+def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
     global B
     #headless= True
     msg('(GS:localhost:8080?')
@@ -140,20 +167,27 @@ def vpy_to_html(targetName = 'test.py', headless=True):
 
     pasteToBrowser( srcFromFileName( targetName ) )
 
-    createHTML(targetName )
-    if headless:
-        B.quit()
-    else:
-        B.get('http://localhost:8080/#/user/jschull/folder/Public/program/workspace')
-        ActionChains(B).send_keys(Keys.ESCAPE).perform() #get rid of the magic context menu?
-        
-    #B.quit()
+    indexHTML = createHTML(targetName )
+    B.get('http://localhost:8080/#/user/jschull/folder/Public/program/workspace')
+    ActionChains(B).send_keys(Keys.ESCAPE).perform() #get rid of the magic context menu?
+    sleep(2)
+    try:
+        errorTB = B.find_elements_by_class_name('error-traceback')[1].text
+        errorMsg = B.find_elements_by_class_name('error-details')[1].text
+        print(f"""GLOWSCRIPT ERROR  {errorTB}
+                                    {errorMsg}""")
+    except IndexError:
+        if openBrowser:
+            from plumbum import local
+            browser=local['open']
+            browser(indexHTML)
+
 
 def createTestPy(timestamp=''):
     msg('creating test.py')
     with open('test.py', 'w') as f:
         f.write(f"""
-import DICT
+import DICT #this should be commented out
 box()
 print('this is test.py')
 def f():
@@ -173,5 +207,5 @@ if __name__=='__main__':
         import time
         createTestPy(time.strftime('%X %x %Z'))
     
-    vpy_to_html( pyFile, headless=True)
+    vpy_to_html( 'test.py', headless=True, openBrowser=True)
     

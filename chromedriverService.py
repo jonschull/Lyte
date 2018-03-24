@@ -54,13 +54,13 @@ def newCDS():
 
 def getCDS():
     lastCDS = CDSfromFile()
-    msg(f'CDsvc:{lastCDS}?')
+    msg(f'(CDsvc:{lastCDS}?')
     if isActive( lastCDS ):
         CDS = lastCDS
-        msg('OK')
+        msg('OK)')
     else:
         CDS = newCDS()
-        msg('-->{CDS}')
+        msg(f'-->{CDS})')
     return CDS
 
  
