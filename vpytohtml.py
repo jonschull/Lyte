@@ -106,7 +106,7 @@ def createHTML( targetName ): #works; depends on glowscript server for scripts b
 
 <div id="glowscript" class="glowscript">
 
-<link type="text/css" href="supportScripts/redmond/jquery-ui.custom.css" rel="stylesheet" />
+<link type="text/css" href="supportScripts/jquery-ui.custom.css" rel="stylesheet" />
 <link type="text/css" href="supportScripts/ide.css" rel="stylesheet" />
 
 <script type="text/javascript" language="javascript" src="supportScripts/jquery.min.js"></script>
@@ -136,7 +136,17 @@ def GSserverIsRunning():
     except Exception as e:
         msg('newGS')
         startGlowScript()
- 
+
+def webServer(targetName):
+    from plumbum import local, NOHUP, BG
+    python3 = local['python3']
+    dirName = targetName.replace('.py','')
+    if python3['-m', 'http.server', '8081'] & NOHUP(stdout='/dev/null'):
+        msg('server at 8081')
+        BrowserFromService().get(f'http://localhost:8081/{dirName}')
+        
+        
+
 
 def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
     global B
@@ -171,9 +181,7 @@ def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
                                     {errorMsg}""")
     except IndexError:
         if openBrowser:
-            from plumbum import local
-            browser=local['open']
-            browser(indexHTML)
+            webServer(targetName)
 
 
 def createTestPy(timestamp=''):
