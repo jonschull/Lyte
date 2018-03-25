@@ -26,10 +26,12 @@ def srcFromFileName(filename='test.py'):
     """get source, apply transformation"""
 
     thesource=open(filename).read()
-    
+    nameOfDir = filename.replace('.py','')
     lines= thesource.split('\n')
     lines.insert(1, 'def GlowMe( me=""): pass\n')
-    lines.insert(2, "get_library('http://localhost:8080/lib/jonlib.js')\n")
+    #lines.insert(2, "get_library('http://localhost:8080/lib/jonlib.js')\n")
+    lines.insert(2, f"get_library('http://localhost:8081/{nameOfDir}/imports.js')\n")
+    
     
     fixedLines=[]
     for line in lines:
@@ -142,9 +144,9 @@ def webServer(targetName):
     from plumbum import local, NOHUP, BG
     python3 = local['python3']
     dirName = targetName.replace('.py','')
-    if python3['-m', 'http.server', '8081'] & NOHUP(stdout='/dev/null'):
-        msg('server at 8081')
-        BrowserFromService().get(f'http://localhost:8081/{dirName}')
+    python3['-m', 'http.server', '8081'] & NOHUP(stdout='/dev/null')
+    msg('server at 8081')
+    BrowserFromService().get(f'http://localhost:8081/{dirName}')
         
         
 
@@ -180,7 +182,10 @@ def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
         errorMsg = B.find_elements_by_class_name('error-details')[1].text
         print(f"""GLOWSCRIPT ERROR  {errorTB}
                                     {errorMsg}""")
-    except IndexError:
+    except:
+        #alerts cause UnexpectedAlertPresentException 
+        import sys
+        print(sys.exc_info()[0])
         if openBrowser:
             webServer(targetName)
 
@@ -190,6 +195,8 @@ def createTestPy(timestamp=''):
     with open('test.py', 'w') as f:
         f.write(f"""
 
+print(interval) # to prove that imports.js got through
+
 box()
 
 print('this is test.py')
@@ -197,6 +204,8 @@ print('this is test.py')
 def f():
     print('this is a function')
 f()
+
+blurt('this works thanks to imports.js')
 
 print("{timestamp}")
 
@@ -213,5 +222,5 @@ if __name__=='__main__':
         import time
         createTestPy(time.strftime('%X %x %Z'))
     
-    vpy_to_html( 'test.py', headless=True, openBrowser=True)
+    vpy_to_html( 'test.py', headless=False, openBrowser=True)
     
