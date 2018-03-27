@@ -7,6 +7,7 @@ import requests
 #B = BrowserFromService(headless = True)
 #B.get('http://localhost:8080/_ah/login')
 
+GSpath = 'http://localhost:8080/#/user/lyteuser/folder/Public/'
 
 def login():
     B.get('http://localhost:8080/_ah/login')
@@ -15,7 +16,7 @@ def login():
     input.click()
     input.send_keys(Keys.RIGHT * 20)
     input.send_keys(Keys.BACKSPACE * 20)
-    input.send_keys('jschull@gmail.com')
+    input.send_keys('lyteuser@gmail.com') #lyte2018
     input.send_keys(Keys.TAB*2)
     input.send_keys(Keys.RETURN)
 #login()
@@ -26,10 +27,12 @@ def srcFromFileName(filename='test.py'):
     """get source, apply transformation"""
 
     thesource=open(filename).read()
-    
+    nameOfDir = filename.replace('.py','')
     lines= thesource.split('\n')
     lines.insert(1, 'def GlowMe( me=""): pass\n')
-    lines.insert(2, "get_library('http://localhost:8080/lib/jonlib.js')\n")
+    #lines.insert(2, "get_library('http://localhost:8080/lib/jonlib.js')\n")
+    lines.insert(2, f"get_library('http://localhost:8081/{nameOfDir}/imports.js')\n")
+    
     
     fixedLines=[]
     for line in lines:
@@ -45,7 +48,7 @@ def srcFromFileName(filename='test.py'):
 
 def goToWorkspace():
     global textarea
-    B.get('http://localhost:8080/#/user/jschull/folder/Public/')
+    B.get(GSpath)# 'http://localhost:8080/#/user/lyteuser/folder/Public/')
     print('page loaded?') 
     sleep(3)
     B.find_element_by_link_text('Create New Program').click()
@@ -76,7 +79,7 @@ def pasteToBrowser( src ):
 #pasteToBrowser( srcFromFileName( targetName ) )
 
 def getEmbeddableSrc( ):
-    B.get('http://localhost:8080/#/user/jschull/folder/Public/program/workspace/share')
+    B.get(f'{GSpath}program/workspace/share')
     sleep(1) #allow time for textarea to fill
     textarea=B.find_element_by_tag_name('textarea')
     embeddableSrc = B.find_element_by_css_selector('.embedSource').text
@@ -90,7 +93,7 @@ def createHTML( targetName ): #works; depends on glowscript server for scripts b
     folderName = targetName.replace('.py', '')
     
     import SSstache
-    newDirs = SSstache.makeHTMLdir()
+    newDirs = SSstache.makeHTMLdir( folderName )
     filepath = newDirs['HTMLdir'] + '/' + 'index.html'
     f=open( filepath , 'w' )
     f.write(f"""<!--------------------------------------------------------
@@ -126,7 +129,7 @@ from plumbum import local, NOHUP, BG
 def startGlowScript():
     python=local['python']
     dev_appserver = local['/Users/jonschull-MBPR/Downloads/google-cloud-sdk/bin/dev_appserver.py']
-    GSappYAML = local['/Users/jonschull-MBPR/glowscript/glowscript/app.yaml']
+    GSappYAML = local['/Users/jonschull-MBPR/glowscript/app.yaml']
     python[dev_appserver, GSappYAML] & NOHUP(stdout='/dev/null')
     sleep(2) #give the server time to start up
     
@@ -137,14 +140,19 @@ def GSserverIsRunning():
     except Exception as e:
         msg('newGS')
         startGlowScript()
+        try:
+            requests.get('http://localhost:8080')
+        except Exception as e:
+            print(e)
+            print('FAILED TO START GLOWSCRIPT SERVER')
 
 def webServer(targetName):
     from plumbum import local, NOHUP, BG
     python3 = local['python3']
     dirName = targetName.replace('.py','')
-    if python3['-m', 'http.server', '8081'] & NOHUP(stdout='/dev/null'):
-        msg('server at 8081')
-        BrowserFromService().get(f'http://localhost:8081/{dirName}')
+    python3['-m', 'http.server', '8081'] & NOHUP(stdout='/dev/null')
+    msg('server at 8081')
+    BrowserFromService().get(f'http://localhost:8081/{dirName}')
         
         
 
@@ -172,7 +180,7 @@ def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
     pasteToBrowser( srcFromFileName( targetName ) )
 
     indexHTML = createHTML(targetName )
-    B.get('http://localhost:8080/#/user/jschull/folder/Public/program/workspace')
+    B.get(f'{GSpath}program/workspace')
     ActionChains(B).send_keys(Keys.ESCAPE).perform() #get rid of the magic context menu?
     sleep(2)
     try:
@@ -180,7 +188,10 @@ def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
         errorMsg = B.find_elements_by_class_name('error-details')[1].text
         print(f"""GLOWSCRIPT ERROR  {errorTB}
                                     {errorMsg}""")
-    except IndexError:
+    except:
+        #alerts cause UnexpectedAlertPresentException 
+        import sys
+        print(sys.exc_info()[0])
         if openBrowser:
             webServer(targetName)
 
@@ -190,6 +201,8 @@ def createTestPy(timestamp=''):
     with open('test.py', 'w') as f:
         f.write(f"""
 
+print(interval) # to prove that imports.js got through
+
 box()
 
 print('this is test.py')
@@ -197,6 +210,8 @@ print('this is test.py')
 def f():
     print('this is a function')
 f()
+
+blurt('this works thanks to imports.js')
 
 print("{timestamp}")
 
@@ -213,5 +228,5 @@ if __name__=='__main__':
         import time
         createTestPy(time.strftime('%X %x %Z'))
     
-    vpy_to_html( 'test.py', headless=True, openBrowser=True)
+    vpy_to_html( pyFile, headless=False, openBrowser=True)
     

@@ -1,69 +1,52 @@
 from plumbum.path.utils import copy, delete
-from plumbum.cmd import mkdir, cd, pwd
+from plumbum.cmd import mkdir, pwd
 from plumbum import local, FG, TF
 
 from chromedriverService import BrowserFromService, Keys, msg
 
+from datetime import datetime
+timestamp = datetime.now().strftime("-%Y-%m-%d_%H%M%p")
 
 
-testDir = 'testBuild'
+def testBuild(target='lyte.py', fileNames= ['lyte.py', 'pyonly.py'] ):
+    local.cwd.chdir(initialDir)
+    global testDirName, fileName
+    testDirName = target.replace('.py','')+ timestamp 
+    print(f'\n\nTESTBUILD: making {testDirName}')
+    mkdir( testDirName)
 
-delete(testDir)
-mkdir( testDir)
 
-fileNames ="""
-vpytohtml.py
-chromedriver.txt
-SSstache.py
-chromedriverService.py
-copypaste.py
-testBuild.py
+    for fileName in  fileNames:
+        print(f'TESTBUILD: copying {fileName} -> {testDirName}/{fileName}')
+        print('xxxx', f'{testDirName}/{fileName}')
+        copy(fileName, f'{testDirName}/{fileName}')
+        
+    local.cwd.chdir(testDirName)
+    print(pwd())
+    print(f'TESTBUILD: running ipython3 {testDirName}/{target}\n')
+    
+    ipython3 = local['ipython3']
+    ipython3(target)
+    
+
+initialDir=pwd().strip()
+
+lytefiles="""
+lyte.py
+pyonly.py
 """.split()
 
-for fileName in fileNames:
-    copy(fileName, f'{testDir}/{fileName}')
-    
-def positionWindow():
-    T.maximize_window()
-    screen = T.get_window_size()
-    width  = screen['width']
-    height = screen['height']
-    T.set_window_rect(0,0,round(width/2), round(height/2))
-  
+testBuild('lyte.py', lytefiles)
 
-#butterfly=local['/Users/jonschull-MBPR/miniconda3/bin/butterfly.server.py']
-#print(butterfly('--unsecure') )
 
-T = BrowserFromService(headless = False)
-T.get('http://localhost:57575')
+vpyfiles ="""
+    vpytohtml.py
+    chromedriver.txt
+    SSstache.py
+    chromedriverService.py
+    copypaste.py
+    testBuild.py
+    """.split()
 
-from time import sleep
-print('You have 5 seconds to enter your password in the terminal.')
-sleep(5)
+testBuild('vpytohtml.py', vpyfiles) #vpython
 
-def typeThis(s):
-    from selenium.webdriver import ActionChains
-    actions=ActionChains(T)
-    actions.send_keys(s + Keys.RETURN).perform()
-
-workdir = pwd().strip() + '/' + testDir
-typeThis(f"""
-
-ipython3
-
-clear
-""")
-
-positionWindow()
-
-sleep(1)
-
-typeThis(f"""
-
-exit
-
-cd {workdir}
-
-ipython3 vpytohtml.py
-
-""")

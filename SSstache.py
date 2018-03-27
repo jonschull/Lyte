@@ -1,30 +1,52 @@
 """Support Script stache"""
-GLOWPATH = '/Users/jonschull-MBPR/glowscript/glowscript'
-verbose=False
+from plumbum import local
+from plumbum.cmd import ls
+from plumbum.path.utils import copy, delete
+
 import os, shutil
 
-def null():
-    pass
+TESTING = True
+if TESTING:
+    pytest=local['pytest']
+    
 
-def makeSupportScriptStache():
-    stacheName = 'supportScripts'
-    SSS = os.getcwd() + '/' +  stacheName
+def makeSupportScriptStache(stacheDir   =   'VPsupportScripts',
+                            GLOWPATH    =   '/Users/jonschull-MBPR/glowscript',
+                            scriptNames ="""/lib/jquery/IDE/jquery.min.js
+                                            /lib/jquery/IDE/jquery-ui.custom.min.js 
+                                            /package/glow.2.7.min.js 
+                                            /package/RSrun.2.7.min.js
+                                            /css/redmond/jquery-ui.custom.css 
+                                            /css/ide.css""".split() ):
+    """ Create folder called stacheDir
+        fill it with the scripts we named
+        by getting them from GLOWPATH (the directory where they can be found)
+        pytest
+    """
+    
+    
+    SSS = os.getcwd() + '/' +  stacheDir
     print('makeSupportScriptStache\t', SSS, end=' ')
     try:
-        os.mkdir('./supportScripts')
+        os.mkdir(SSS)
         print('created')
     except FileExistsError:
         print('exists')
     
-    scriptNames = '/lib/jquery/IDE/jquery.min.js /lib/jquery/IDE/jquery-ui.custom.min.js /package/glow.2.7.min.js /package/RSrun.2.7.min.js'.split()
-    scriptNames = scriptNames + '/css/redmond/jquery-ui.custom.css /css/ide.css'.split()
+    #scriptNames = '/lib/jquery/IDE/jquery.min.js /lib/jquery/IDE/jquery-ui.custom.min.js /package/glow.2.7.min.js /package/RSrun.2.7.min.js'.split()
+    #scriptNames = scriptNames + '/css/redmond/jquery-ui.custom.css /css/ide.css'.split()
     for scriptName in scriptNames:
         scriptPath = GLOWPATH + scriptName
         scriptShortName = scriptName.split('/')[-1]
-        shutil.copyfile(scriptPath, './supportScripts/'+scriptShortName)
+        shutil.copyfile(scriptPath, SSS+'/'+scriptShortName)
     return SSS
+
            
 def prepareHTMLdir(dirName='test'):
+    """create HTMLdir if necessary
+    pytest
+    """
+    
     htmldir=os.getcwd() + '/' + dirName
     print('prepareHTMLdir\t', htmldir, end=' ')
     try:
@@ -34,30 +56,63 @@ def prepareHTMLdir(dirName='test'):
         print('exists')    
     return htmldir
         
-def out(s):
-    print('==', s, globals()[s])
-
-def putInHTMLdir(filename = 'test.py', htmlDir='./test'):
-    shutil.copyfile(filename, htmlDir+'/'+ filename)
-    print('putInHTMLdir\t', filename, 'copied into', htmlDir)
-
-def makeHTMLdir():
-    SSS='./supportScripts'
-    if not os.path.exists(SSS):
-        makeSupportScriptStache()
         
-    HTMLdir = prepareHTMLdir()
-    destDir = HTMLdir + '/supportScripts'
-    if os.path.exists(destDir):
-        shutil.rmtree(destDir)
-        print('makeHTMLdir\t', destDir, 'removed')
-    shutil.copytree(SSS,destDir)
+def out(s):
+    """simple debug utility
+    if x==5, out(x) will print
+      =x= 5
+    """
+    print(f'={s}= {globals()[s]}');
+
+    
+def makeHTMLdir(HTMLdir,
+                stacheDir   =   'VPsupportScripts',
+                GLOWPATH    =   '/Users/jonschull-MBPR/glowscript',
+                scriptNames ="""/lib/jquery/IDE/jquery.min.js
+                                /lib/jquery/IDE/jquery-ui.custom.min.js 
+                                /package/glow.2.7.min.js 
+                                /package/RSrun.2.7.min.js
+                                /css/redmond/jquery-ui.custom.css 
+                                /css/ide.css""".split() ):
+    """create a stacheDir if necessary.
+       create HTMLdir
+       create supportScript
+           fill it with scriptNames from stacheDir
+           
+    pytest
+    """
+
+    if not os.path.exists(stacheDir):
+        makeSupportScriptStache(stacheDir, GLOWPATH, scriptNames)
+        
+    prepareHTMLdir(HTMLdir)
+    
+    destDir = HTMLdir + '/' + 'supportScripts'
+    delete(destDir)
+    print('stacheDir', stacheDir)
+    print('destDir', destDir)
+    copy(stacheDir,destDir)
     print('makeHTMLdir\t', destDir, 'created and filled')
+    
     return {'HTMLdir': HTMLdir, 'destDir': destDir}
 
+
+
+def putInHTMLdir(filename = 'test.py'):
+    """  create a directory for the python file
+         then put the pythonfile into it 
+    """
+    HTMLdir = filename.replace('.py','')
+    newDir = makeHTMLdir(HTMLdir)
+
+    shutil.copyfile(filename, HTMLdir+'/'+ filename)
+    print('putInHTMLdir\t', filename, 'copied into', HTMLdir)
+
+
 if __name__=='__main__':
-    newDirs = makeHTMLdir()
-    putInHTMLdir('test.py', newDirs['HTMLdir'])
+    putInHTMLdir('boxtest.py')
+    
+    if TESTING: print(pytest('-v'))
 
 
 
