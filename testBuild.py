@@ -1,5 +1,5 @@
 from plumbum.path.utils import copy, delete
-from plumbum.cmd import mkdir, pwd
+from plumbum.cmd import mkdir, pwd, touch
 from plumbum import local, FG, TF
 
 from chromedriverService import BrowserFromService, Keys, msg
@@ -18,7 +18,6 @@ def testBuild(target='lyte.py', fileNames= ['lyte.py', 'pyonly.py'] ):
 
     for fileName in  fileNames:
         print(f'TESTBUILD: copying {fileName} -> {testDirName}/{fileName}')
-        print('xxxx', f'{testDirName}/{fileName}')
         copy(fileName, f'{testDirName}/{fileName}')
         
     local.cwd.chdir(testDirName)
@@ -36,7 +35,7 @@ lyte.py
 pyonly.py
 """.split()
 
-testBuild('lyte.py', lytefiles)
+#testBuild('lyte.py', lytefiles)
 
 
 vpyfiles ="""
@@ -46,7 +45,10 @@ vpyfiles ="""
     chromedriverService.py
     copypaste.py
     testBuild.py
+    test_SSstache.py
+    test_vpytohtml.py
     """.split()
 
 testBuild('vpytohtml.py', vpyfiles) #vpython
+plumbum.cmd.touch('TestBuild_Successful')
 
