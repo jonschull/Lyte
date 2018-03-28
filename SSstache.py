@@ -24,14 +24,14 @@ def makeSupportScriptStache(stacheDir   =   'VPsupportScripts',
         pytest
     """
     
-    
+    verbose = False
     SSS = os.getcwd() + '/' +  stacheDir
-    print('makeSupportScriptStache\t', SSS, end=' ')
+    if verbose: print('makeSupportScriptStache\t', SSS, end=' ')
     try:
         os.mkdir(SSS)
-        print('created')
+        if verbose: print('created')
     except FileExistsError:
-        print('exists')
+        if verbose: print('exists')
     
     #scriptNames = '/lib/jquery/IDE/jquery.min.js /lib/jquery/IDE/jquery-ui.custom.min.js /package/glow.2.7.min.js /package/RSrun.2.7.min.js'.split()
     #scriptNames = scriptNames + '/css/redmond/jquery-ui.custom.css /css/ide.css'.split()
@@ -46,14 +46,14 @@ def prepareHTMLdir(dirName='test'):
     """create HTMLdir if necessary
     pytest
     """
-    
+    verbose=False
     htmldir=os.getcwd() + '/' + dirName
     print('prepareHTMLdir\t', htmldir, end=' ')
     try:
         os.mkdir(dirName)
-        print('created')
+        if verbose: print('created')
     except FileExistsError:
-        print('exists')    
+        if verbose: print('exists')    
     return htmldir
         
         
@@ -81,7 +81,7 @@ def makeHTMLdir(HTMLdir,
            
     pytest
     """
-
+    verbose=False
     if not os.path.exists(stacheDir):
         makeSupportScriptStache(stacheDir, GLOWPATH, scriptNames)
         
@@ -89,30 +89,33 @@ def makeHTMLdir(HTMLdir,
     
     destDir = HTMLdir + '/' + 'supportScripts'
     delete(destDir)
-    print('stacheDir', stacheDir)
+    if verbose: print('stacheDir', stacheDir)
     print('destDir', destDir)
     copy(stacheDir,destDir)
-    print('makeHTMLdir\t', destDir, 'created and filled')
+    if verbose: print('makeHTMLdir\t', destDir, 'created and filled')
     
     return {'HTMLdir': HTMLdir, 'destDir': destDir}
-
 
 
 def putInHTMLdir(filename = 'test.py'):
     """  create a directory for the python file
          then put the pythonfile into it 
     """
+    verbose=False
     HTMLdir = filename.replace('.py','')
     newDir = makeHTMLdir(HTMLdir)
 
     shutil.copyfile(filename, HTMLdir+'/'+ filename)
-    print('putInHTMLdir\t', filename, 'copied into', HTMLdir)
+    if verbose: print('putInHTMLdir\t', filename, 'copied into', HTMLdir)
 
 
 if __name__=='__main__':
+    with open('boxtest.py','w') as f:
+        f.write('box()')
+        
     putInHTMLdir('boxtest.py')
     
-    if TESTING: print(pytest('-v'))
+    #if TESTING: print(pytest('-v'))
 
 
 

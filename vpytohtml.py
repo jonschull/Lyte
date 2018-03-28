@@ -5,7 +5,7 @@ from selenium.webdriver import ActionChains
 import requests
 import plumbum
 from plumbum.path.utils import delete
-from plumbum.cmd import ls, touch, mkdir
+from plumbum.cmd import ls, touch, mkdir, pwd
 
 GSpath = 'http://localhost:8080/#/user/lyteuser/folder/Public/'
 
@@ -82,22 +82,22 @@ def getEmbeddableSrc(B):
     embeddableSrc = B.find_element_by_css_selector('.embedSource').text
     return embeddableSrc
 
-def test_getEmbeddableSrc():
-    global B
-    B = BrowserFromService(headless = False)
-    assert getEmbeddableSrc(B).startswith('<div id="glowscript" class="glowscript">')
-    B.close()
-test_getEmbeddableSrc()
 
-
-def createHTML(targetName, src=None, importsJS="alert('imports.js present but empty')"): #works; depends on glowscript server for scripts but creates directory that is free standing.
+def createHTML(targetName, B, src=None, importsJS="alert('imports.js present but empty')"): #works; depends on glowscript server for scripts but creates directory that is free standing.
     def ret(): #convenient object
         pass
     ret.targetName=targetName
     
     if src == None:
         src = getEmbeddableSrc( B )
-    src = src.split('<![CDATA[//><!--')[1]
+
+    try:
+        src = src.split('<![CDATA[//><!--')[1]
+    except IndexError:
+        print('GLOWSCRIPT ERROR')
+        return None
+        
+    
     ret.folderName = targetName.replace('.py', '')
     
     import SSstache
@@ -162,36 +162,6 @@ function blurt(){alert('this could be say')}
 
 """
     
-def test_make_importsJS():
-    assert 'function interval' in make_importsJS()
-test_make_importsJS()
-
-def test_createHTML( ):    
-    delete('arbitrary')
-    delete('arbitrary.py')
-
-    global B
-    with open('arbitrary.py', 'w') as f:
-        f.write('box(color=color.purple)')
-        
-    B = BrowserFromService(headless = False)
-    importsJS = make_importsJS()    
-    ret = createHTML('arbitrary.py',importsJS = importsJS)
-    print(ret.__dict__)
-    
-    assert 'arbitrary.py' in ls().split()
-    assert ret.folderName == 'arbitrary'
-    assert 'arbitrary' in ls().split()
-    assert 'index.html' in ls('arbitrary').split()
-    assert 'imports.js' in ls('arbitrary').split()
-    assert 'supportScripts' in ls('arbitrary').split()
-    assert 'box(color=color.purple)' in open('arbitrary.py').read()
-    # THIS CURRENTLY DOES NOT ENSURE FUNCTIONALITY OF arbitrary.py BECAUSE
-    # we haven't put it into the workspace,
-    # so the javscript in index.html is does not contain our program
-    
-test_createHTML( )
-
 from plumbum import local, NOHUP, BG
 
 def startGlowScript():
@@ -231,6 +201,7 @@ def webServer(targetName):
     msg('server at 8081')
     #BrowserFromService().get(f'http://localhost:8081/{dirName}')
 
+
 def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
     global B
     #headless= True
@@ -246,14 +217,14 @@ def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
     login(B)
     msg('IN')
     
-    #targetName='test.py'
+
     msg(f'{targetName}-->')
     goToWorkspace(B)
 
     pasteToBrowser( srcFromFileName( targetName ), B )
 
     #indexHTML =
-    createHTML(targetName, importsJS=make_importsJS() )
+    createHTML(targetName, B, importsJS=make_importsJS() )
     B.get(f'{GSpath}program/workspace')
     ActionChains(B).send_keys(Keys.ESCAPE).perform() #get rid of the magic context menu?
     sleep(2)
@@ -262,12 +233,14 @@ def vpy_to_html(targetName = 'test.py', headless=True, openBrowser=False):
         errorMsg = B.find_elements_by_class_name('error-details')[1].text
         print(f"""GLOWSCRIPT ERROR  {errorTB}
                                     {errorMsg}""")
+        return 'GLOWSCRIPT ERROR'
     except:
         #alerts cause UnexpectedAlertPresentException 
         import sys
         print(sys.exc_info()[0])
         if openBrowser:
             webServer(targetName)
+        return 'SUCCESS'
     
 
 
@@ -293,7 +266,7 @@ print("{timestamp}")
 """)
 
     
-if __name__=='__main__':
+if __name__=='__mxxxain__':
     
     import sys
     

@@ -4,8 +4,9 @@ from plumbum.cmd import ls, touch, mkdir
 
 def test_login():
     B = BrowserFromService(headless = False)
-    
+    sleep(1)
     login(B)
+    sleep(1)
     assert B.find_element_by_tag_name('body').text.startswith('Logged in')
     
     B.close()
@@ -16,6 +17,7 @@ def test_createTestPy(timestamp=''):
     delete('test.py')
     createTestPy()
     assert open('test.py').read().strip().startswith('print(interval)')
+    delete('test.py')
 
 
 def test_srcFromFileName():
@@ -64,7 +66,7 @@ def test_createHTML( ):
         
     B = BrowserFromService(headless = False)
     importsJS = make_importsJS()    
-    ret = createHTML('arbitrary.py',importsJS = importsJS)
+    ret = createHTML('arbitrary.py', B, importsJS = importsJS)
     print(ret.__dict__)
     
     assert 'arbitrary.py' in ls().split()
@@ -80,6 +82,7 @@ def test_createHTML( ):
     
     B.close()
     delete('arbitrary')
+    delete('arbitrary.py')
 
 def test_GSserver():
     """kill the server,  restart it, confirm life"""
@@ -90,6 +93,7 @@ def test_GSserver():
         except:
             pass
         assert GSserverIsRunning() == 1
+        sleep(1)
         assert requests.get(f'http://localhost:{port_Number}')
     
     test_the_Server(8080)
@@ -117,4 +121,44 @@ def test_webServer():
     assert randomFileName in requests.get(f'http://localhost:8081/{randomDirName}').text
     
     delete(randomDirName)    
+
+
+    
+def xxxxxtest_vpy_to_html(): #this test is too slow and too brittle  
+    global B
+    fname = 'vpytohtml_tester.py'
+    delete(fname)
+    
+
+    for headless in [False, True]:
+        B = BrowserFromService(headless = headless)
+        print(f'\n\nexpect error, headless={headless}')
+        with open(fname, 'w') as f:
+                  f.write('sphere(color=color.green') #note missing paren after green
+        assert 'GLOWSCRIPT ERROR' in vpy_to_html( fname, headless=headless, openBrowser=True)
+        
+        print(f'\\nnexpect success, headless={headless}')
+        with open(fname, 'w') as f:  #now has closing paren
+                  f.write("""sphere(color=color.green)
+scene.caption="<a href='http://google.org'>in browser?</a>"
+""")
+                  
+        assert 'SUCCESS' in vpy_to_html( fname, headless=headless, openBrowser=True)
+        #file:///Users/jonschull-MBPR/fork/vpytohtml/vpytohtml_tester/index.html
+        pathStart = pwd().strip() #/Users/jonschull-MBPR/fork/vpytohtml\
+        dirName = fname.replace('.py','')
+        fullURL = f'file://{pathStart}/{dirName}/index.html'
+        print('FP', fullURL)
+        B.get(fullURL)
+        sleep(1)
+        links = B.find_elements_by_partial_link_text('browser')
+        assert links
+        if links:
+            assert links[0].text == 'in browser?'
+            
+        try:
+            B.close()
+        except:
+            pass
+           
 

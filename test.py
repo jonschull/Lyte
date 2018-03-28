@@ -12,5 +12,5 @@ f()
 
 blurt('this works thanks to imports.js')
 
-print("18:53:29 03/27/18 EDT")
+print("")
 

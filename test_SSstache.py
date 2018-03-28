@@ -38,6 +38,7 @@ def test_makeHTMLdir():
     assert( ls('123/supportScripts').split() == scriptNames )
     
     delete( HTMLdirName )
+    delete(fakeSSname)
     
     
 def test_putInHTMLdir():
@@ -45,6 +46,7 @@ def test_putInHTMLdir():
     putInHTMLdir('box2.py')
     assert( 'box2.py' in ls('box2').split() )
     delete('box2.py')
+    delete('box2')
     
              
 #prepareHTMLdir(dirName='xyz')
