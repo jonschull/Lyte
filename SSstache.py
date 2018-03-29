@@ -3,12 +3,7 @@ from plumbum import local
 from plumbum.cmd import ls
 from plumbum.path.utils import copy, delete
 
-import os, shutil
-
-TESTING = True
-if TESTING:
-    pytest=local['pytest']
-    
+import os, shutil    
 
 def makeSupportScriptStache(stacheDir   =   'VPsupportScripts',
                             GLOWPATH    =   '/Users/jonschull-MBPR/glowscript',
@@ -48,7 +43,7 @@ def prepareHTMLdir(dirName='test'):
     """
     verbose=False
     htmldir=os.getcwd() + '/' + dirName
-    print('prepareHTMLdir\t', htmldir, end=' ')
+    if verbose: print('prepareHTMLdir\t', htmldir, end=' ')
     try:
         os.mkdir(dirName)
         if verbose: print('created')
@@ -65,7 +60,7 @@ def out(s):
     print(f'={s}= {globals()[s]}');
 
     
-def makeHTMLdir(HTMLdir,
+def makeHTMLdir(fileName,
                 stacheDir   =   'VPsupportScripts',
                 GLOWPATH    =   '/Users/jonschull-MBPR/glowscript',
                 scriptNames ="""/lib/jquery/IDE/jquery.min.js
@@ -76,34 +71,37 @@ def makeHTMLdir(HTMLdir,
                                 /css/ide.css""".split() ):
     """create a stacheDir if necessary.
        create HTMLdir
-       create supportScript
+       create supportScripts folder
            fill it with scriptNames from stacheDir
            
     pytest
     """
     verbose=False
+    HTMLdir = fileName.replace('.py','')
     if not os.path.exists(stacheDir):
         makeSupportScriptStache(stacheDir, GLOWPATH, scriptNames)
         
     prepareHTMLdir(HTMLdir)
+    #print(f'copy({fileName}, {HTMLdir})')
+    copy(fileName, HTMLdir)
     
     destDir = HTMLdir + '/' + 'supportScripts'
     delete(destDir)
     if verbose: print('stacheDir', stacheDir)
-    print('destDir', destDir)
+    #print('destDir', destDir)
     copy(stacheDir,destDir)
     if verbose: print('makeHTMLdir\t', destDir, 'created and filled')
     
     return {'HTMLdir': HTMLdir, 'destDir': destDir}
 
 
-def putInHTMLdir(filename = 'test.py'):
+def xxxputInHTMLdir(filename = 'test.py'):
     """  create a directory for the python file
          then put the pythonfile into it 
     """
     verbose=False
     HTMLdir = filename.replace('.py','')
-    newDir = makeHTMLdir(HTMLdir)
+    #newDir = makeHTMLdir(HTMLdir)
 
     shutil.copyfile(filename, HTMLdir+'/'+ filename)
     if verbose: print('putInHTMLdir\t', filename, 'copied into', HTMLdir)
@@ -112,11 +110,8 @@ def putInHTMLdir(filename = 'test.py'):
 if __name__=='__main__':
     with open('boxtest.py','w') as f:
         f.write('box()')
-        
-    putInHTMLdir('boxtest.py')
+    ret = makeHTMLdir('boxtest.py')
     
-    #if TESTING: print(pytest('-v'))
-
-
+    
 
 
