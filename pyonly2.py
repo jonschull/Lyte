@@ -3,6 +3,7 @@ TESTING = True#__name__ == '__main__'
 EQUALTO='EQUALTO'
 IN = 'IN'
 ERROR='ERROR'
+
 VERBOSE = False
 SHOWRS = False
 
@@ -17,16 +18,19 @@ RESULTS = AttrDict(yes=0, no=0)
 if TESTING:
     if VERBOSE:
         print('IS?  Line')          
-        
-def IS(a='', condition=EQUALTO, b='' ):
+
+def IS(a='', condition=EQUALTO, b='',hint='' ):
     import inspect
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)[1][3]
     question = inspect.getouterframes(curframe, 2)[1][-2][-1].strip()
     lineNumber = inspect.getouterframes(curframe, 2)[1][-4]
+
+    if (a=='' and condition==EQUALTO and b==''):
+        return lineNumber
     
     if not condition in [EQUALTO, IN, ERROR]:
-        print ('BADCONDITION', condition)
+        print (f'BADCONDITION at line {lineNumber}', condition)
         return
     
     nice = question.replace('IS(','IS(\t ')
@@ -48,6 +52,7 @@ def IS(a='', condition=EQUALTO, b='' ):
     
 ############# end test framework 
 
+
 import SSstache
 import sys
 import plumbum
@@ -60,11 +65,21 @@ rapydscript = local['/Users/jonschull-MBPR/rapydscript-ng/rapydscript-ng/bin//ra
 
 
 def RS(*args, **kwargs):
+    import inspect
+    curframe = inspect.currentframe()
+    calframe = inspect.getouterframes(curframe, 2)[1][3]
+    question = inspect.getouterframes(curframe, 2)[1][-2][-1].strip()
+    lineNumber = inspect.getouterframes(curframe, 2)[1][-4]
+
     if SHOWRS:
+        from trace import trace
         if type(args)==type(()):
-            print('rapydscript', args)
+            print(f'\nline {lineNumber}: rapydscript', args)
+            trace()
+            print(f'line {lineNumber}: \t\trapydscript', args)
+            print()
         else:
-            print('\nrapydscript', ' '.join(args))
+            print('f\nline {lineNumber}: rapydscript', ' '.join(args))
     Error, output, errorMsg = rapydscript[args].run(retcode=None)
     IS('', EQUALTO, errorMsg)
     return output
@@ -73,8 +88,11 @@ def RS(*args, **kwargs):
 
 def lsl(*args):
     """items from ls() returned as list"""
-    return ls(*args).split()
-
+    try:
+        return ls(*args).split()
+    except plumbum.commands.processes.ProcessExecutionError:
+        return []
+        
         
 def makeFile(fName, contents="print('makeFile')"):
     with open(fName,'w') as f:
@@ -97,7 +115,7 @@ def myHTML(pyName=sys.argv[0]):
     
     return f"""<html>
             <head> <meta charset="UTF-8">
-            <title>pyName</title>
+            <title>{pyName}</title>
              </head>
             <body>
                <script type="text/javascript" language="javascript"
@@ -120,6 +138,7 @@ if TESTING:
     IS(f'{baseName(sys.argv[0])}.js', IN, myHTML(sys.argv[0]) )
     makeFile('dummy.py', "print('I am dummy.py')")
     IS('dummy.js', IN, myHTML('dummy.py') )
+    IS('<title>dummy.py</title>', IN, myHTML('dummy.py'))
     pbDelete('dummy.py')
     pbDelete('dummy')
 
@@ -137,8 +156,9 @@ def makeMyDir(pyName=sys.argv[0]):
     return ret
 if TESTING:
     makeMyDir()
-    IS('lyte2.py', IN, lsl('lyte2') )
-    IS('supportScripts',      IN, lsl('lyte2') )
+    myName= sys.argv[0]
+    IS(myName, IN, lsl(baseName(myName) ))
+    IS('supportScripts',      IN, lsl(baseName(myName)) )
     makeFile('dummy.py', "print('I am dummy.py')" )
     makeMyDir('dummy.py')
     IS('dummy.py', IN, lsl('dummy') )
@@ -162,7 +182,7 @@ def makeMyJS(pyName=sys.argv[0]):
     """assumes myDir exists"""
     myDirName = baseName(pyName)
     ret = RS('-x', pyName) #for error checking
-    RS(pyName, '-o', f"{myDirName}/{myDirName+'.js'}")
+    RS(pyName, '-o', f"{myDirName}/{myDirName+'.js'}") 
     return ret
 
 if TESTING:#TESTING: #test makeMyIndexHTML and makeMyJS
@@ -176,8 +196,8 @@ if TESTING:#TESTING: #test makeMyIndexHTML and makeMyJS
     programOutput = makeMyJS('dummy.py')
     IS('dummy.js',   IN, lsl('dummy') )
     IS('hello dummy\n', EQUALTO, programOutput)
-    #pbDelete('dummy.py')
-    #pbDelete('dummy')
+    pbDelete('dummy.py')
+    pbDelete('dummy')
     
 def lyten(pyName=sys.argv[0]):
     """presumes pyName exists"""
@@ -186,7 +206,7 @@ def lyten(pyName=sys.argv[0]):
     makeMyIndexHTML(pyName)
     dirName = baseName(pyName)
     indexPath = baseName(pyName)+'/index.html'
-    print(f'lyte Created folder with {indexPath}\n')
+    print(f'\n|| Created folder with {indexPath}\n')
     return indexPath
 if 0:#TESTING:
     makeFile('dummy.py', "print('this is from lyten')" )
@@ -196,6 +216,22 @@ if 0:#TESTING:
     pbDelete('dummy.py')
     #pbOpen(f'dummy/index.html')
     #NEED BETTER TEST
+    
+def enLytenMe():
+    lyten() #with no parameters
+    
+def runMe(openBrowser=False):
+    print('_'*20, 'running under rapyscript', '_'*20)
+    if sys.argv[0] == __file__:
+        print(f"SORRY:  runMe() won't work on {__file__}")
+    else:
+        ret = RS('-x', sys.argv[0])
+        if ret:
+            print(ret)
+        if openBrowser:
+            indexPath = f'{baseName(sys.argv[0])}/index.html'
+            pbOpen(indexPath)
+    
     
 def testLyte():
     python=local['python3']
@@ -228,4 +264,4 @@ if __name__=='__main__':
     if len( sys.argv ) > 1:
         lyten('hello.py')
     else:
-        print('try python3 pyonly2.py hello.py') 
+        print(f'{sys.argv[0]}:  try python3 {sys.argv[0]} hello.py') 
