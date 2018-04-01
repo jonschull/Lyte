@@ -29,7 +29,6 @@ def blurt(s):
     except:
         say(s)  #will work otherwise
         
-print = print #so people can go lyte2.print()
 
 if __name__=='__main__':
     say(  f'saying:   {language} in {context}')  #Lyte REQUIRES PYTHON3
@@ -37,6 +36,11 @@ if __name__=='__main__':
     blurt(f'alerting: {language} in {context}')
 
     print('hello from lyten. 12:57')
+    try:
+        #import fromjs
+        say(fromjs.hello())
+    except:
+        print('fromjs.hello FAILED')  
 
     enLytenMe()  #this creates the HTML folder
 
