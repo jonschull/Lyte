@@ -1,55 +1,103 @@
-import pyonly
-#we need a copy of this file for rapydscript to import
+if __name__=='__main__':
+    import makemyPYJ
 
-#pyonly.make_lyte_pyj() 
 
-def runRS(quiet=False):
-    """use the RapydScript python-to-javascript transpiler"""
-    pyonly.copy_Scripts_to_pyj(quiet)
-    pyonly.runRapydscript()
+
+try:
+    from pythonize import strings
+    strings()
+except ModuleNotFoundError:
+    pass
+
+def say(*args):
+    """ output arguments like print, only to document.body.innerHTML, if possible.
+        if it IS possible, return 1; else 0
+        if no arguments given, output nothing (but still return 1 or 0)
+        accept 'NOBREAK' as last argument to suppress '<br/>\n'
+    """
+    NOBREAK = False
+    if args:
+        if args[-1] == 'NOBREAK':
+            args=args[0:-1]
+            NOBREAK = True
     
-def webMe(quiet=False, openBrowser=False):
-    """generate an HTML page"""
-    pyonly.copy_Scripts_to_pyj(quiet)
-    pyonly.makeHTMLandJS(quiet=quiet, openBrowser=openBrowser)
+    s=' '.join(args)
+    verbose=False
+    if language == 'RS':
+        try:
+            if s:
+                if NOBREAK:
+                    document.body.innerHTML +=  s
+                else:
+                   document.body.innerHTML += s+'<br/>\n'
+            else:
+                document.body.innerHTML += ''
+            return 1
+        except TypeError:
+            if verbose:
+                print(f'browserhead:: {s}')
+            else:
+                if s:
+                    if NOBREAK:
+                        print(s, end='') #is there way to suppress carriage return??
+                    else:
+                        print(s)
+            return 0
+        except ReferenceError:
+            if verbose:
+                print(f'rapydscript shell:: {s}')
+            else:
+                if s:
+                    if NOBREAK:
+                        print(s) #is there way to suppress carriage return??
+                    else:
+                        print(s)
+            return 1
+    else: #language is Python
+        if verbose:
+            print(f'python shell:: {s}')
+        else:
+            if s:
+                if NOBREAK:
+                    print(s, end='')
+                else:
+                    print(s)
+        return 1
 
 
-#determine language
+def inPythonZone():
+    if language == 'RS':
+        try:
+            document.body.innerHTML# +=  s  + '<br/>\n'
+        except TypeError:
+            return 0
+        except ReferenceError:
+            return 0
+    return 1
+
+
 try: 
     if globals(): language='Python'
 except ReferenceError:
-    language = 'Rapydscript'
+    language = 'RS'
     
-#determine context
 try:  #if this works, we're in the browser
-    document.body.innerHTML+= '<hr/>\n' 
+    document
     context='browser'
-except:
+except NameError:
     context='shell'
-    
-def _appendToBody(s):
-    """ this is called by say if we are in the browser """
-    document.body.innerHTML+= s + '<br/>\n'
-    
-def say(s):
-    """prints to screen or webpage"""
-    if context=='browser':
-        _appendToBody(s)
-    else:
-       print(s)
-       
-def blurt(s):
-    """uses alert in browser; uses say otherwise"""
-    try:
-        alert(s) #will work in browser
-    except:
-        say(s)  #will work otherwise
-        
 
-if __name__=='__main__':
-    say(  f'saying:   {language} in {context}')  #Lyte REQUIRES PYTHON3
-    print(f'printing: {language} in {context}')
-    blurt(f'alerting: {language} in {context}')
-    runRS()
-    webMe(openBrowser=True)
+headBody=''
+if context == 'browser':
+    try:  #if this works, we're in the browser
+        document.body.innerHTML
+        headBody='body'
+    except TypeError:
+        headBody='head'
 
+
+def explain():
+    return f'{language} {context} {headBody} {__name__}'
+
+if __name__ == '__main__':
+    say(explain())
