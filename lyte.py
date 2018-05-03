@@ -1,13 +1,20 @@
 if __name__=='__main__':
     import makemyPYJ
 
-
-
 try:
     from pythonize import strings
     strings()
 except ModuleNotFoundError:
     pass
+
+def blurt(word):
+    try:
+        alert(word)
+    except NameError:
+        print(word)
+
+
+whereami='Not set yet'
 
 def say(*args):
     """ output arguments like print, only to document.body.innerHTML, if possible.
@@ -65,6 +72,8 @@ def say(*args):
         return 1
 
 
+
+
 def inPythonZone():
     if language == 'RS':
         try:
@@ -87,17 +96,25 @@ try:  #if this works, we're in the browser
 except NameError:
     context='shell'
 
-headBody=''
-if context == 'browser':
-    try:  #if this works, we're in the browser
-        document.body.innerHTML
-        headBody='body'
-    except TypeError:
-        headBody='head'
+
+def explain(NAME):
+    from attrthing import AttrThing
+    ret = AttrThing(language=language, context=context,  name=NAME)
+    if context=='browser':
+        if NAME == '__embedded__':
+            ret.headBody = 'body'
+        else:
+            ret.headBody='head'
+    else:
+        ret.headBody = 'NA'
+    return ret
 
 
-def explain():
-    return f'{language} {context} {headBody} {__name__}'
+def visible(whereami):
+    print(whereami)
+    if whereami.name =='__embedded__' and whereami.context == 'browser': return True
+    if whereami.name == '__main__'    and whereami.context == 'shell':   return True
+
 
 if __name__ == '__main__':
-    say(explain())
+    say(str(explain(__name__)))
