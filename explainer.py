@@ -1,13 +1,13 @@
-from lyte import explain, say, blurt, visible, whereami
+from lyte import explain, say, blurt, whereami
 
-import makemyHTML
+import makemyVPHTML
 
 whereami = explain(__name__)
+
+if whereami.visible:
+    say(whereami)
+    say('once in shell, once in browser')
+    say(1,2,3,'four')
     
-if whereami.name =='__embedded__' and whereami.context == 'browser':
-    print('ok once just in browser')
-    
-if visible(whereami):
-    print('once in shell, once in browser')
 
 

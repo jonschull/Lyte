@@ -13,10 +13,34 @@ def blurt(word):
     except NameError:
         print(word)
 
+def say(*args):
+    args=[str(arg) for arg in args]
+    s=''.join(args)
+    try:
+        GSprint(s)
+        return
+    except:
+        pass
+    
+    NOBREAK=False
+    if args:
+        if args[-1] == 'NOBREAK':
+            args=args[0:-1]
+            NOBREAK = True
+    try:
+        el=document.getElementById('lyte')
+        el.innerHTML+=s
+        if not NOBREAK:
+            el.innerHTML+='<br/>'
+    except NameError:
+        print(s)
+    except TypeError: #this happens with glowscript so don't worry
+        pass
+        
 
 whereami='Not set yet'
 
-def say(*args):
+def oldsay(*args):
     """ output arguments like print, only to document.body.innerHTML, if possible.
         if it IS possible, return 1; else 0
         if no arguments given, output nothing (but still return 1 or 0)
@@ -97,6 +121,10 @@ except NameError:
     context='shell'
 
 
+def visible(whereami):
+    if whereami.name =='__embedded__' and whereami.context == 'browser': return True
+    if whereami.name == '__main__'    and whereami.context == 'shell':   return True
+
 def explain(NAME):
     from attrthing import AttrThing
     ret = AttrThing(language=language, context=context,  name=NAME)
@@ -107,13 +135,8 @@ def explain(NAME):
             ret.headBody='head'
     else:
         ret.headBody = 'NA'
+    ret.visible = visible(ret)
     return ret
-
-
-def visible(whereami):
-    print(whereami)
-    if whereami.name =='__embedded__' and whereami.context == 'browser': return True
-    if whereami.name == '__main__'    and whereami.context == 'shell':   return True
 
 
 if __name__ == '__main__':

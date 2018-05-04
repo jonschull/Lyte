@@ -1,4 +1,4 @@
-from makemyPYJ import makeDummyPYJ, sameWords, makemyPYJ
+from makemyPYJ import makeDummyPYJ#, makemyPYJ
 makeDummyPYJ('makemyVPHTML')
 makeDummyPYJ('sys')
 makeDummyPYJ('writeout', ['writeout'])
@@ -8,6 +8,7 @@ import sys
 import writeout
 from lyte import say
 from plumbum import local
+from beginswith import beginsWith
 RS = local['/Users/jonschull-MBPR/rapydscript-ng/rapydscript-ng/bin//rapydscript']
 plopen = local['open']
 
@@ -21,7 +22,7 @@ lines = open(sys.argv[0]).readlines()
     
 hasVPimport = False
 for i,line in enumerate(lines):
-    if sameWords(line, 'from vpython import *'):
+    if beginsWith(line, 'from vpython import'):
         lines[i] = '##commented out by makemyHTML##' + line
         hasVPimport = True
 print('\nhasVPimport',hasVPimport)
@@ -95,8 +96,8 @@ VPtemplate = f"""<html>
         
     </head>
     <body>
-        <div id="glowscript" class="glowscript">
-        </div>  
+        <div id="lyte">                            </div>  
+        <div id="glowscript" class="glowscript">   </div>  
 
     </body>
     <script type="text/javascript">var compiler = RapydScript.create_embedded_compiler();
@@ -127,17 +128,14 @@ writeout.writeout(f'{myName}.html', template )
 
 print(f'RS', '-b', f'{myName}.py', '-o', f'{myName}.js \n')
 
-if hasVPimport:
-    makemyPYJ(myName = myName + '.py') #make PYJ
-    RS('-b', f'{myName}.pyj', '-o', f'{myName}.js')    #compile the PYJ
-else:
-    RS('-b', f'{myName}.py', '-o', f'{myName}.js')     #compile the PY
+import makemyPYJ
+#makemyPYJ(myName = myName + '.py') #make PYJ
+RS('-b', f'{myName}.pyj', '-o', f'{myName}.js')    #compile the PYJ
 
 plopen(f'{myName}.html')
 
+from vpython import box
 if __name__== '__main__':
     ##LYTEML--INCLUDE THIS:
-    say('this is {myName} (makemyHTML.html)')
-    say(f'this is {myName} (makemyHTML.html)')
-    say('<hr/>', "<i>note that variables (like myName) that can't be defined by javascript in the browser are unavailable</i>")
-
+    box()
+    print('hello')

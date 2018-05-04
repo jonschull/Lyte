@@ -45,10 +45,10 @@ template = f"""
         <script type="text/javascript" src="{myName}.js">   </script>
     </head>
     <body>
+    <div id='lyte'></div>
     </body>
 <script type="text/javascript">var compiler = RapydScript.create_embedded_compiler();
-eval(compiler.compile(hereDoc(`##### Python zone begins 
-
+eval(compiler.compile(hereDoc(`##### Python zone begins
 
 
 
@@ -76,4 +76,3 @@ if __name__== '__main__':
     say('this is {myName} (makemyHTML.html)')
     say(f'this is {myName} (makemyHTML.html)')
     say('<hr/>', "<i>note that variables (like myName) that can't be defined by javascript in the browser are unavailable</i>")
-
