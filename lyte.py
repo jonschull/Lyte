@@ -12,13 +12,14 @@ def blurt(word):
         alert(word)
     except NameError:
         print(word)
+    return '--blurt'
 
 def say(*args):
     args=[str(arg) for arg in args]
     s=''.join(args)
     try:
         GSprint(s)
-        return
+        return '--say'
     except:
         pass
     
@@ -34,8 +35,9 @@ def say(*args):
             el.innerHTML+='<br/>'
     except NameError:
         print(s)
-    except TypeError: #this happens with glowscript so don't worry
-        pass
+    except TypeError: #this happens with glowscript 
+        print(s)
+    return('--say')
         
 
 whereami='Not set yet'
@@ -124,6 +126,11 @@ except NameError:
 def visible(whereami):
     if whereami.name =='__embedded__' and whereami.context == 'browser': return True
     if whereami.name == '__main__'    and whereami.context == 'shell':   return True
+    try:
+        GSprint
+        return True
+    except:
+        return False
 
 def explain(NAME):
     from attrthing import AttrThing

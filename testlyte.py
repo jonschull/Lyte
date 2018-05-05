@@ -1,14 +1,13 @@
 from lyte import say, whereami, explain, blurt
 
-from mockvpython import box, cone, color
-
-import makemyVPHTML
+import makemyHTML
+say('say')
+print('print')
+blurt('blurt')
 
 whereami = explain(__name__)
-
 if whereami.visible:
-    box()
-    cone()
     say('say')
     print('print')
     blurt('blurt')
+
