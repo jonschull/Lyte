@@ -1,5 +1,6 @@
 import a
-from lyte import say
+from lyte import say, whereami
 import makemyHTML
-if say():
+if whereami(__name__).visible:
     say('this is b.py')
+    

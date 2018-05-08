@@ -1,13 +1,13 @@
-import a
-from makemyPYJ import makeDummyPYJ
-makeDummyPYJ('vpython', funcNames=['box', 'cone', 'sphere', 'exec'])
+from lyte import say, whereami, blurt
 
-from vpython import *
-from vpython import box, cone
+from vpython import box, cone, color
 
 import makemyVPHTML
 
-box() 
-cone()
-for i in range(3):
-    print(i,'okey dokey?')
+if whereami(__name__).visible:
+    box()
+    cone(color=color.orange)
+    say('say')
+    print('print')
+    blurt('blurt')
+

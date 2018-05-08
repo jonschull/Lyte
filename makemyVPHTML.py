@@ -6,7 +6,7 @@ makeDummyPYJ('plumbum',['local'])
 
 import sys
 import writeout
-from lyte import say, whereami, explain
+from lyte import say, whereami
 from plumbum import local
 from beginswith import beginsWith
 RS = local['/Users/jonschull-MBPR/rapydscript-ng/rapydscript-ng/bin//rapydscript']
@@ -130,17 +130,18 @@ print(f'RS', '-b', f'{myName}.py', '-o', f'{myName}.js \n')
 
 import makemyPYJ
 #makemyPYJ(myName = myName + '.py') #make PYJ
+print(f'myName {myName}')
 RS('-b', f'{myName}.pyj', '-o', f'{myName}.js')    #compile the PYJ
 
 plopen(f'{myName}.html')
 
-whereami = explain(__name__)
-print('whereami', whereami)
 
-if whereami.language == 'Python' and whereami.name != 'makemyVPHTML':
-    from vpython import box
+print('whereami', whereami(__name__))
+
+if whereami(__name__).language == 'Python' and whereami(__name__).name != 'makemyVPHTML': 
+    from vpython import box  
     
-if whereami.visible:
+if whereami(__name__).visible:
     ##LYTEML--INCLUDE THIS:
     box()
     print('hello')

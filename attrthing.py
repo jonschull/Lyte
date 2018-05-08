@@ -91,6 +91,7 @@ def tests():
     print('items\t',  D.items())
     print('D\t',      D)
     print('str(D)\t', str(D))
+    print('raw D\t', D)
 
 if __name__=='__main__':
     tests()

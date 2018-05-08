@@ -40,8 +40,6 @@ def say(*args):
     return('--say')
         
 
-whereami='Not set yet'
-
 def oldsay(*args):
     """ output arguments like print, only to document.body.innerHTML, if possible.
         if it IS possible, return 1; else 0
@@ -115,6 +113,11 @@ try:
     if globals(): language='Python'
 except ReferenceError:
     language = 'RS'
+    try:
+        if dir(vpython): #works when we have imported vpython (not mockvpython)
+            language = 'GS'
+    except:
+        pass
     
 try:  #if this works, we're in the browser
     document
@@ -132,11 +135,11 @@ def visible(whereami):
     except:
         return False
 
-def explain(NAME):
+def whereami(__name__):
     from attrthing import AttrThing
-    ret = AttrThing(language=language, context=context,  name=NAME)
+    ret = AttrThing(language=language, context=context,  name=__name__)
     if context=='browser':
-        if NAME == '__embedded__':
+        if __name__ == '__embedded__':
             ret.headBody = 'body'
         else:
             ret.headBody='head'
@@ -147,4 +150,4 @@ def explain(NAME):
 
 
 if __name__ == '__main__':
-    say(str(explain(__name__)))
+    say(str(whereami(__name__)))

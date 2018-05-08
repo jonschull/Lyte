@@ -2,8 +2,9 @@ from lyte import say
 from attrthing import AttrThing 
 #from writeout import writeout
 
-from makePYJs import makeMyPYJ, makeDummyPYJ
-makeMyPYJ()
+from makemyPYJ import makeDummyPYJ
+
+import makemyPYJ
 
 class tag(AttrThing):    
     roster=AttrThing()  #roster will be [{ID:tag, ID:tag...}]

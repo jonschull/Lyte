@@ -179,4 +179,3 @@ def vertex(*args, **kwargs): pass
 def vpython(*args, **kwargs): pass
 def websocketserving(*args, **kwargs): pass
 def wtext(*args, **kwargs): pass
-color.black = color.blue = color.cyan = color.gray = color.green = color.magenta = color.orange = color.red = color.white = color.yellow = 0
