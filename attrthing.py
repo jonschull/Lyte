@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+def typer(thing):
+    strType = str(type(thing))
+    typeID = strType.split('{')[0].strip()
+    typeID = typeID.replace('function ','').replace('()','')
+    return "<" + typeID + ">"
+
+
 rapydscriptVersion = """
 try:
     from pythonize import strings
@@ -6,35 +14,25 @@ try:
     from __python__ import dict_literals, overload_getitem
 except ModuleNotFoundError:
     context='PYTHON'
-    #from attrthing import AttrThing as DICT
 
-#print('context', context)
+def typer(thing):
+    strType = str(type(thing))
+    typeID = strType.split('{')[0].strip()
+    typeID = typeID.replace('function ','').replace('()','')
+    return "<" + typeID + ">"
 
 class AttrThing():
     def __init__(self,*args, **kwargs):
-        if len(args)==1:
-            if type(args[0])==type({}): #convert an object into a DICT
-                #self._germ='{}'
-                obj=args[0]
-                keys= Object.keys(obj)
-                values= Object.values(obj)
-                for i in range(len(keys)):
-                   k=keys[i]
-                   v=values[i]
-                   self[k]=v
-                   #print(k,v,'\t',end='')
-            else:
-                if type(args[0])==type(dict()): #convert a dict
-                    d=args[0]
-                    #self._germ='dict()'
-                    for k,v in zip(d.keys(), d.values()):
-                        if not k.startswith('_'):
-                            self[k]=v
-                    
-            
-        for kwarg in kwargs:
-            self[kwarg]=kwargs[kwarg]
-    
+        #print('args', args, 'kwargs', kwargs,'  len(args)', len(args))
+        if len(args)==1: #dict, attrthing or object to be re-typed
+            thing = args[0]
+            if 1: #typer(thing) == typer(dict()):
+                for k,v in thing.items():
+                    self[k]=v
+        else:
+            for kwarg in kwargs:
+                self[kwarg]=kwargs[kwarg]
+
     def __call__(self, *args, **kwargs):
         print('in __call__', args, kwargs)
         for k,v in kwargs.items(): #allow a(this='this', that='that') for existing object
@@ -75,31 +73,26 @@ class AttrThing():
                 ret.append(str(self[k]))
             ret.append(', ')
         ret.pop() #trailing comma
-        return '{' + ''.join(ret) + '}'
-        
+        return '<{' + ''.join(ret) + '}>'
+
 def tests():
-    D=AttrThing(a=1,b=2)
-    D['c']=3
-    D.d=4
-    D[6]=6 ##########################NOTE: 6 becomes "6"
-    D[7]='seven'
-    D['phrase with spaces'] =  5
-    #D(c='c-redux')
-    print('D[7]', D[7])
-    print('keys\t',   D.keys())
-    print('values\t', D.values())
-    print('items\t',  D.items())
-    print('D\t',      D)
-    print('str(D)\t', str(D))
-    print('raw D\t', D)
+    print('==========')
+    print(AttrThing(dict(a=1,b=2))) #worked
+    print(AttrThing({'a':1,'b':2})) #worked
+    print(AttrThing(AttrThing(a=1,b=2))) #worked
+    print(AttrThing(a=1,b=2)) #sanity check (works)
+        
 
 if __name__=='__main__':
     tests()
+
 """
+
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 from writeout import writeout
+
 writeout(f'{dir_path}/attrthing.pyj', rapydscriptVersion)
 
 class AttrDict(dict): #http://code.activestate.com/recipes/576972-attrdict/;
@@ -116,7 +109,7 @@ class AttrThing(AttrDict):
          does not turn lists into tuples (c.f., https://pypi.python.org/pypi/attrdict')
     """
     def __init__(self, *args, **kwargs):
-        super(AttrThing, self).__init__(**kwargs)
+        super(AttrThing, self).__init__(*args, **kwargs)
         
     def __call__(self, *args, **kwargs):
         #print('in __call__', args, kwargs)
@@ -170,7 +163,8 @@ class AttrThing(AttrDict):
             else:
                 ret.append(str(v))
             ret.append(', ')
-        return '{' + ''.join(ret) + '}'
+        ret.pop() #trailing comma
+        return '<{' + ''.join(ret) + '}>'
 
 
 if __name__=='__main__':
@@ -215,9 +209,6 @@ if __name__=='__main__':
     a(one=1,two=2,three=3)
     print(a, '\n\t\t Note: Settable after the fact via a(one=1,two=2,three=3)')
     print()
-    #		 Note: Return keys() and values() as lists to allow indexing via a.keys()[0]
-    #['THIS', 'THAT'] 
-    #		 Note: a('this','that') returns a list
 
     
     a.l=[1,2,3]
@@ -227,14 +218,8 @@ if __name__=='__main__':
     
     print(a.l, a('l'), a['l'], a.l ==a('l')==a['l'], 'all accessors return the same thing')
     #[1, 2, 3] [1, 2, 3] [1, 2, 3] True all accessors return the same thing
-    a.l.append('this fails with the more sophisticated but mysterious https://pypi.python.org/pypi/attrdict')
-    print( a.l )
-    #[1, 2, 3, 'this fails with the more sophisticated but mysterious https://pypi.py
-    
-    #print(a.PreDefined_nonStandardAttr)
-    #__getattr:__for PreDefined_NonStandarAttr, arbitrary code  function calls can go in __getattr_
-    
-    #print(a.not_Predfined_and_not_standard) #raises exception
-    #AttributeError: __getattr__ failed to help with attrnamenot_Predfined_and_not_standard
-
-
+    print()
+    print(AttrThing(dict(convertsFromDict = 'toAttrThing')))
+    print(AttrThing({'convertsFromCurly' : 'toAttrThing'}))
+    print(AttrThing(AttrThing( acceptsAT = 'and converts')))
+ 
