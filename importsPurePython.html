@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="UTF-8">
+      <script type="text/javascript"  src="rapydscript.js"></script>
+      <script src="system.js"></script>
+    </head>
+    <body>
+      <script>
+          var compiler = RapydScript.create_embedded_compiler();
+
+          function joinAndCompile(A){
+            eval(compiler.compile(A.join('\n\n')) )
+          }
+
+          x = System.import('try.py!text.js')
+          y = System.import('try2.py!text.js')
+          Promise.all([x,y]).then(joinAndCompile)
+
+
+        </script>
+      </body>
+    </html>

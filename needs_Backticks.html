@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Test embedded RapydScript</title>
+
+<script type="text/javascript"  src="imports.js"></script>
+<script type="text/javascript"  src="rapydscript.js"></script>
+
+
+// allows multi-line strings
+// https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript?rq=1
+        <script>function hereDoc(f) {
+                      return f.toString().
+                          replace(/^[^\/]+\/\*!?/, '').
+                          replace(/\*\/[^\/]+$/, '');
+                    }
+        </script>
+
+
+
+
+
+        <script>
+var compiler = RapydScript.create_embedded_compiler();
+var js = compiler.compile(hereDoc(`
+
+def hello_world():
+    a='RapydScript is cool!'
+    print(a)
+    alert(a)
+
+def byebye():
+    alert('bye')
+
+blurt('blurt courtesy of imports.js')
+
+for i in range(10):
+    print(i,'in the browser console')
+
+`));
+
+
+window.onload = function() {
+    document.body.textContent = js; // put it in the body
+    eval(js);  // makes  hello_world functional
+    eval('hello_world()'); //executes hello_world
+    eval(byebye())
+};
+        </script>
+    </head>
+    <body style="white-space:pre-wrap">
+    </body>
+</html>

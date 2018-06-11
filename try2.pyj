@@ -1,0 +1,4 @@
+def try2announcer(s='hello'):
+    say('This is try two saying ' + s )
+
+try2announcer('init')

@@ -1,3 +1,4 @@
+
 function interval(func, wait, times){
     var interv = function(w, t){
         return function(){
@@ -17,4 +18,15 @@ function interval(func, wait, times){
     setTimeout(interv, wait);
 };
 
-function blurt(){alert('this could be say')}
+function blurt(s){alert(s)}
+
+function say(s){
+  el=document.body.innerHTML+= s + '<br/>'
+}
+
+function pre(s){
+  el=document.body.innerHTML+= '<pre>' + s + '</pre>'
+}
+
+
+//say('imports got loaded')
