@@ -20,7 +20,8 @@
       .then(response => response.text())
       .then(response => {path = '__stdlib__/' + fileName+'j';
                          RapydScript.file_data[path]=response;
-                         eval(compiler.compile(response, options = {'basedir':'__stdlib__', 'omit_baselib':true}))
+                         window.eval(compiler.compile(response, options = {'basedir':'__stdlib__', 'omit_baselib':true}))
+                         //window.eval makes the results global. But c.f. http://perfectionkills.com/global-eval-what-are-the-options/#windoweval
                         })
       .then(console.log('pyInstalled ' +   fileName))
     }
@@ -35,7 +36,7 @@
               //put these.py files into the virtual directory as these.pyj and import them
               await pyInstall(rootName + '.py')
         //.then(await pyInstall('any_Other_Python_Files_Except_This_Name.py'))
-        //.then(await pyInstall('test.py'))
+        .then(await pyInstall('test.py'))
         //.then(await pyInstall('three.py'))
       }
 

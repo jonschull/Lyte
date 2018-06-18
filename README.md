@@ -47,9 +47,9 @@ Drag in `assets`, like images or music, to add them to your project.
 
 Note: I think glitch wants rapydscript files to go into assets.  I haven't done that here but you may need to do some tweaking if you clone this project.
 
-###
+### Author
 
-Made by Jon Schull, jschull@gmail.com, a python programmer, who has tried to learn just enough javascript to not need javascript.  
+Made by Jon Schull, jschull@gmail.com, a python programmer who has tried to learn just enough javascript to not need javascript.  
 -------------------
 
 \ ゜o゜)ノ
