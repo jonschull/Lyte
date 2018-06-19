@@ -1,48 +1,72 @@
 <!DOCTYPE html>
 <html>
-  <head> <meta charset="UTF-8">
-    <script type="text/javascript"  src="rapydscript.js"></script>
-  </head>
-  <body>output is in console. Live-editing works in glitch.com, subethaedit, with "http-serve, and with atom.app and atom-live-server"
-    <br/><b>Theory of Operation </b>  Rename this file whatever.html and create a pure python file called whatever.py.
-    Make sure rapydscript.js can be found.
-    This text should be replaced by content from lyte.py
+    <head><ti
+      <meta charset="UTF-8">
+      <script type="text/javascript"  src="rapydscript.js"></script>
+    </head>
+    <body>
+      <script>   var compiler = RapydScript.create_embedded_compiler();
+        
+///////////////////////////////////////////////////////////////////
+eval(compiler.compile(`
+def saveLib(name,content): #save content in the virtual filesystem
+    path = '__stdlib__/' + name
+    RapydScript.file_data[path] = content
+
+def readLib(name): #retrieve and return content
+    path = '__stdlib__/' + name
+    return RapydScript.file_data[path]
+    
+def showLib(): 
+    for filename in  dir(RapydScript.file_data)[-5:]:
+      print(filename)             
+`, options = { 'basedir':'__stdlib__','omit_baselib':true} )) ///////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+async function compileThis(name,content){ 
+/////////////////////////////////////////
+eval(compiler.compile(`
+saveLib(name,content)
+`,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
+} 
+
+async function pyInstall(fileName){
+/////////////////////////////////////////
+    const response = await fetch(fileName);
+    const content = await response.text()
+    console.log('pyInstalled ' + fileName ) //+ ':\n content:\n ' + content)
+    await compileThis(fileName + 'j', content);
+
+}
+
+        
+         Promise.all([   pyInstall('lyte.py'),
+                         pyInstall('fetched.py'),
+                         pyInstall('compiledThis.py'),
+                         pyInstall('compiledThis2.py'),
+                         pyInstall('compiledThis3.py'),
+                    ]).then(doMain)
+                
+function doMain(){
+//////////////////
+eval(compiler.compile(` 
+#this is where importing can happen
+import lyte
+
+import compiledThis
+#import compiledThis2  #compiledThis2 is actually imported by compiledThis3.
+import compiledThis3
+import fetched
+
+console.log(compiledThis.compiledContent) 
+#console.log(compiledThis2.compiledContent) 
+console.log(compiledThis3.compiledContent) 
+
+
+`,options = {'basedir':'__stdlib__','omit_baselib':true} )) ////////////////////////
+}
+//doMain                            
+                
+    </script>
   </body>
-
-    <script>
-    var  compiler = RapydScript.create_embedded_compiler();
-
-    //https://javascript.info/async-await
-    //https://stackoverflow.com/questions/196498/how-do-i-load-the-contents-of-a-text-file-into-a-javascript-variable
-
-    async function pyInstall( fileName ){
-      fetch(fileName)
-      .then(response => response.text())
-      .then(response => {path = '__stdlib__/' + fileName+'j';
-                         RapydScript.file_data[path]=response;
-                         window.eval(compiler.compile(response, options = {'basedir':'__stdlib__', 'omit_baselib':true}))
-                         //window.eval makes the results global. But c.f. http://perfectionkills.com/global-eval-what-are-the-options/#windoweval
-                        })
-      .then(console.log('pyInstalled ' +   fileName))
-    }
-
-      //rootName = window.location.pathname.split('/').pop().split('.')[0]
-      //             this doesn't work in glitch.  But it does work in your local file system
-      
-      rootName = 'lyte'
-      //if this file is dir/dir2/x.html  rootname = x and we will pyInstall x.py
-
-      async function doInOrder(){
-              //put these.py files into the virtual directory as these.pyj and import them
-              await pyInstall(rootName + '.py')
-        //.then(await pyInstall('any_Other_Python_Files_Except_This_Name.py'))
-        .then(await pyInstall('test.py'))
-        //.then(await pyInstall('three.py'))
-      }
-
-    doInOrder()
-
-
-  </script>
-
 </html>
