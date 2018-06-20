@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
-    <head><ti
+    <head>
       <meta charset="UTF-8">
       <script type="text/javascript"  src="rapydscript.js"></script>
     </head>
     <body>
+      
       <script>   var compiler = RapydScript.create_embedded_compiler();
-        
-///////////////////////////////////////////////////////////////////
+       
+////////////////////////create utilities in python///////////////////////
 eval(compiler.compile(`
 def saveLib(name,content): #save content in the virtual filesystem
     path = '__stdlib__/' + name
@@ -18,30 +19,27 @@ def readLib(name): #retrieve and return content
     return RapydScript.file_data[path]
     
 def showLib(): 
-    for filename in  dir(RapydScript.file_data)[-5:]:
+    for filename in  dir(RapydScript.file_data)[-6:]:
       print(filename)             
 `, options = { 'basedir':'__stdlib__','omit_baselib':true} )) ///////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
 async function compileThis(name,content){ 
-/////////////////////////////////////////
-eval(compiler.compile(`
-saveLib(name,content)
-`,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
+///////////////////////////use saveLib to compile and save//////////////
+  eval(compiler.compile(`saveLib(name,content)`
+    ,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
 } 
 
 async function pyInstall(fileName){
-/////////////////////////////////////////
+//////////retrieve py files from filesystem, install as pyj///////////
     const response = await fetch(fileName);
     const content = await response.text()
     console.log('pyInstalled ' + fileName ) //+ ':\n content:\n ' + content)
     await compileThis(fileName + 'j', content);
-
 }
 
         
          Promise.all([   pyInstall('lyte.py'),
-                         pyInstall('fetched.py'),
                          pyInstall('compiledThis.py'),
                          pyInstall('compiledThis2.py'),
                          pyInstall('compiledThis3.py'),
@@ -49,18 +47,18 @@ async function pyInstall(fileName){
                 
 function doMain(){
 //////////////////
-eval(compiler.compile(` 
-#this is where importing can happen
+window.eval(compiler.compile(` 
+comment = 'python variables and functions accessible here are also accessible from console'
+
+
 import lyte
+lyte.demoOfLyte() #writes demo to document.body
 
 import compiledThis
 #import compiledThis2  #compiledThis2 is actually imported by compiledThis3.
 import compiledThis3
-import fetched
 
-console.log(compiledThis.compiledContent) 
-#console.log(compiledThis2.compiledContent) 
-console.log(compiledThis3.compiledContent) 
+from lyte import say
 
 
 `,options = {'basedir':'__stdlib__','omit_baselib':true} )) ////////////////////////
