@@ -1,0 +1,5 @@
+Using the commandline, I did
+
+git init
+git remote add https://github.com/jonschull/Lyte
+and then in Atom Publish
