@@ -1,0 +1,17 @@
+June 23 To initialize the PPGSO branch and eliminate Atom's fixation on the entire core demos treeUsing
+I did something like this
+
+In Atom
+  new branch
+
+In commandline
+  git init in this directory
+  git remote add https://github.com/jonschull/Lyte
+
+In Atom
+  Publish
+
+Apparently to update you need to
+  stage
+  then commit
+  then Push
