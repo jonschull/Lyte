@@ -28,4 +28,4 @@ Log
 
 Other Notes:  Keep these true
   Folding Text Alt Cmd [ and ]; also ^K and ^L via keyboard maestro
-  Current template is "working dual PPGSO.html" 
+  Current template is "working dual PPGSO.html" based on PPGSOincrementalLayout
