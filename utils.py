@@ -1,3 +1,8 @@
+"""
+now part of lyte.py
+"""
+
+
 try:
     from pythonize import strings
     strings()
