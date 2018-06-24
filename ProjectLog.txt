@@ -1,0 +1,31 @@
+Log
+  june 23
+    Github
+      To initialize the PPGSO branch and eliminate Atom's fixation on the entire core demos treeUsing
+      I did something like this
+
+      In Atom
+        new branch
+
+      In commandline
+        git init in this directory
+        git remote add https://github.com/jonschull/Lyte
+
+      In Atom
+        Publish
+
+      Apparently to update you need to
+        stage
+        then commit
+        then Push
+
+    installed Terminal (right click or see icon at bottom left)
+
+  June 24
+    installed pythonIDE
+    pyInstall and lyte no longer choke on purePython files that import pythonize
+    Changed Themes via settings
+
+Other Notes:  Keep these true
+  Folding Text Alt Cmd [ and ]; also ^K and ^L via keyboard maestro
+  Current template is "working dual PPGSO.html" 
