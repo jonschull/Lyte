@@ -39,25 +39,80 @@
         </div>
     </div>
 
-<//script type="text/javascript" src="glowscript_libraries/jon-source.js"></script>
 
 <script type="text/javascript" src="jg/third.js"></script>
 
-<script type="text/javascript">
 
+
+///////////
+/////////////   pyInstall
+//////////
+    <script type="text/javascript" src="rapydscript.js"></script>
+  <script>   var compiler = RapydScript.create_embedded_compiler();
+
+////////////////////////create utilities in python///////////////////////
+eval(compiler.compile(`
+def saveLib(name,content): #save content in the virtual filesystem
+    path = '__stdlib__/' + name
+    RapydScript.file_data[path] = content
+
+def readLib(name): #retrieve and return content
+    path = '__stdlib__/' + name
+    return RapydScript.file_data[path]
+
+def showLib(howMany=-6):
+    for filename in  dir(RapydScript.file_data)[ howMany:]:
+      print(filename)
+`, options = { 'basedir':'__stdlib__','omit_baselib':true} )) ///////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+async function compileThis(name,content){
+///////////////////////////use saveLib to compile and save//////////////
+  eval(compiler.compile(`saveLib(name,content)`
+    ,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
+}
+
+async function pyInstall(fileName){
+//////////retrieve py files from filesystem, install as pyj///////////
+    const response = await fetch(fileName);
+    const content = await response.text()
+    console.log('pyInstalling ' + fileName ) //+ ':\n content:\n ' + content)
+    await compileThis(fileName + 'j', content);
+}
+
+
+         Promise.all([   pyInstall('lyte.py')
+                    ]).then(doMain)
+
+function doMain(){
+//////////////////
+window.eval(compiler.compile(`
+
+from lyte import filterImports
+
+`,options = {'basedir':'__stdlib__','omit_baselib':true} )) ////////////////////////
+}
+//doMain //pyInstall universe
+</script>
+
+
+
+<script type="text/javascript">
 async function getSource(fileName){
 //////////retrieve py files from filesystem, install as pyj///////////
     console.log('fetching: ' + fileName + ' ??')
     const response = await fetch(fileName);
     const content = await response.text()
     source = content
-    return source
+    return filterImports(source)
 }
 
 async function notYet(){
   source=''
-  source += await getSource('test.py')
   source += await getSource('cone.py')
+  source += await getSource('PPGSOincrementalLayout.py')
+  source += await getSource('PPGSOincrementalLayout_Main.py')
+
   await runCode()
 }
 notYet()

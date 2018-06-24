@@ -1,1 +1,2 @@
-c=cone()
+from vpython import cone
+c = cone()
