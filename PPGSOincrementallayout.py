@@ -185,7 +185,7 @@ if __name__ == '__xxmain__':
 
     # Generate nodes
     params={'edges':edges,
-            'iterations'    : 100,
+            'iterations'    : 10,
             'updateNodes'   : updateSpheres,
             'is_3D'         : False,
             'force_strength': 5.0,

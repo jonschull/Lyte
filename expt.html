@@ -106,16 +106,9 @@ async function getSource(fileName){
     source = content
     return filterImports(source)
 }
+</script>
+<script src="notyet.js"></script>
 
-async function notYet(){
-  source=''
-  source += await getSource('cone.py')
-  source += await getSource('PPGSOincrementalLayout.py')
-  source += await getSource('PPGSOincrementalLayout_Main.py')
-
-  await runCode()
-}
-notYet()
 
 </script>
 </html>

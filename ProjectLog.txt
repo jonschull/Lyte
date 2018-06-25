@@ -26,6 +26,9 @@ Log
     pyInstall and lyte no longer choke on purePython files that import pythonize
     Changed Themes via settings
 
+    Wanting to eliminate double bookkeeping
+      
+
 Other Notes:  Keep these true
   Folding Text Alt Cmd [ and ]; also ^K and ^L via keyboard maestro
   Current template is "working dual PPGSO.html" based on PPGSOincrementalLayout

@@ -9,7 +9,6 @@ try:
 except ModuleNotFoundError:
     print('no need for pythonize')
 
-
 def filterImports(s):
   lines=s.split('\n')
   for i,line in enumerate(lines):
