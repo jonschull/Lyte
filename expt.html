@@ -12,8 +12,7 @@
     </head>
     <body>
     <div>
-        <div>INCLUDEs but does not import pure python test.py</b>
-             at end. </div>
+        <div>All the program specific stuff is in notyet.js</b> </div>
         <script type="text/javascript" src="glowscript_libraries/Roboto_Medium_ttf_sans.js"></script>
         <script type="text/javascript" src="glowscript_libraries/NimbusRomNo9L_Med_otf_serif.js"></script>
         <script type="text/javascript" src="glowscript_libraries/jquery.min.js"></script>
@@ -43,13 +42,53 @@
 <script type="text/javascript" src="jg/third.js"></script>
 
 
+<script type="text/javascript">
+async function getSource(fileName){
+//////////retrieve py files from filesystem, install as pyj///////////
+    console.log('fetching: ' + fileName + ' ??')
+    const response = await fetch(fileName);
+    const content = await response.text()
+    source = content
+    return filterImports(source)
+}
+</script>
+
 
 ///////////
 /////////////   pyInstall
 //////////
     <script type="text/javascript" src="rapydscript.js"></script>
-  <script>   var compiler = RapydScript.create_embedded_compiler();
 
+  <script>
+  var compiler = RapydScript.create_embedded_compiler();
+
+
+  async function pyInstall(fileName){
+  //////////retrieve py files from filesystem, install as pyj///////////
+      const response = await fetch(fileName);
+      const content = await response.text()
+      console.log('pyInstalling ' + fileName ) //+ ':\n content:\n ' + content)
+      await compileThis(fileName + 'j', content);
+  }
+
+  async function compileThis(name,content){
+  ///////////////////////////use saveLib to compile and save//////////////
+    eval(compiler.compile(`saveLib(name,content)`
+      ,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
+  }
+
+
+
+
+
+
+
+</script>
+
+
+
+<script src="notyet.js"></script>
+<script>
 ////////////////////////create utilities in python///////////////////////
 eval(compiler.compile(`
 def saveLib(name,content): #save content in the virtual filesystem
@@ -66,49 +105,7 @@ def showLib(howMany=-6):
 `, options = { 'basedir':'__stdlib__','omit_baselib':true} )) ///////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
-async function compileThis(name,content){
-///////////////////////////use saveLib to compile and save//////////////
-  eval(compiler.compile(`saveLib(name,content)`
-    ,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
-}
-
-async function pyInstall(fileName){
-//////////retrieve py files from filesystem, install as pyj///////////
-    const response = await fetch(fileName);
-    const content = await response.text()
-    console.log('pyInstalling ' + fileName ) //+ ':\n content:\n ' + content)
-    await compileThis(fileName + 'j', content);
-}
-
-
-         Promise.all([   pyInstall('utils.py')
-                    ]).then(doMain)
-
-function doMain(){
-//////////////////
-window.eval(compiler.compile(`
-
-from utils import filterImports
-
-`,options = {'basedir':'__stdlib__','omit_baselib':true} )) ////////////////////////
-}
 //doMain //pyInstall universe
 </script>
 
-
-
-<script type="text/javascript">
-async function getSource(fileName){
-//////////retrieve py files from filesystem, install as pyj///////////
-    console.log('fetching: ' + fileName + ' ??')
-    const response = await fetch(fileName);
-    const content = await response.text()
-    source = content
-    return filterImports(source)
-}
-</script>
-<script src="notyet.js"></script>
-
-
-</script>
 </html>

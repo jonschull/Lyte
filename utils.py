@@ -1,5 +1,5 @@
 """
-now part of lyte.py
+filterImports also in lyte.py
 """
 
 

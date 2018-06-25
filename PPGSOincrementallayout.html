@@ -11,9 +11,8 @@
         <link type="text/css" href="glowscript_libraries/ide.css" rel="stylesheet" />
     </head>
     <body>
-    <div>
-        <div>INCLUDEs but does not import pure python test.py</b>
-             at end. </div>
+    <div>All the custom files are in notyet.js
+
         <script type="text/javascript" src="glowscript_libraries/Roboto_Medium_ttf_sans.js"></script>
         <script type="text/javascript" src="glowscript_libraries/NimbusRomNo9L_Med_otf_serif.js"></script>
         <script type="text/javascript" src="glowscript_libraries/jquery.min.js"></script>
@@ -66,32 +65,6 @@ def showLib(howMany=-6):
 `, options = { 'basedir':'__stdlib__','omit_baselib':true} )) ///////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
-async function compileThis(name,content){
-///////////////////////////use saveLib to compile and save//////////////
-  eval(compiler.compile(`saveLib(name,content)`
-    ,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
-}
-
-async function pyInstall(fileName){
-//////////retrieve py files from filesystem, install as pyj///////////
-    const response = await fetch(fileName);
-    const content = await response.text()
-    console.log('pyInstalling ' + fileName ) //+ ':\n content:\n ' + content)
-    await compileThis(fileName + 'j', content);
-}
-
-
-         Promise.all([   pyInstall('utils.py')
-                    ]).then(doMain)
-
-function doMain(){
-//////////////////
-window.eval(compiler.compile(`
-
-from utils import filterImports
-
-`,options = {'basedir':'__stdlib__','omit_baselib':true} )) ////////////////////////
-}
 //doMain //pyInstall universe
 </script>
 
@@ -107,15 +80,6 @@ async function getSource(fileName){
     return filterImports(source)
 }
 
-async function notYet(){
-  source=''
-  source += await getSource('cone.py')
-  source += await getSource('PPGSOincrementalLayout.py')
-  source += await getSource('PPGSOincrementalLayout_Main.py')
-
-  await runCode()
-}
-notYet()
 
 </script>
 </html>
