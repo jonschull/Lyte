@@ -26,8 +26,20 @@ Log
     pyInstall and lyte no longer choke on purePython files that import pythonize
     Changed Themes via settings
 
-    Wanting to eliminate double bookkeeping
-      
+  June 25 separation of concerns (but confusing flow.  need to diagram and refactor)
+    expt.html is all generic
+    notyet.js contains the specific inclusions of python runCode
+
+    expt.html defines pyInstall and compileThis and getSource
+
+    notyet.js
+      uses pyInstall->compileThis -> doMain() to import utils.py filterImports
+      uses notyet.js/notyet()
+        to getSource and filterImports to populate the GSO editor
+        and then asks GlowScript to runCode()
+
+
+
 
 Other Notes:  Keep these true
   Folding Text Alt Cmd [ and ]; also ^K and ^L via keyboard maestro
