@@ -14,6 +14,9 @@ This  demo is a force-directed graph layout routine written in python-compatible
 
 Because it is written in ptyon-compatible Glowsdript the two pure python files can be run with the Python compiler or via GlowScript in the browser.  
 
+This source is in the PPGSO branch of http://github.com/jonschull/lyte
+
+
 Your Project
 ------------
 
