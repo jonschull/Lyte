@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <!-- Using GlowScript locally, based on the work of Vesa Lappalainen vesal@jyu.fi -->
+        <title>GlowScript Offline</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" type="text/css" href="jg/jg-style.css" />
+        <link type="text/css" href="glowscript_libraries/jquery-ui.custom.css" rel="stylesheet" />
+        <link type="text/css" href="glowscript_libraries/ide.css" rel="stylesheet" />
+    </head>
+    <body>
+    <div>
+        <div>INCLUDEs but does not import pure python test.py</b>
+             at end. </div>
+        <script type="text/javascript" src="glowscript_libraries/Roboto_Medium_ttf_sans.js"></script>
+        <script type="text/javascript" src="glowscript_libraries/NimbusRomNo9L_Med_otf_serif.js"></script>
+        <script type="text/javascript" src="glowscript_libraries/jquery.min.js"></script>
+        <script type="text/javascript" src="glowscript_libraries/jquery-ui.custom.min.js"></script>
+        <script type="text/javascript" src="glowscript_libraries/editor.js"></script>
+        <script type="text/javascript" src="glowscript_libraries/RSrun.2.7.min.js"></script>
+        <script type="text/javascript" src="glowscript_libraries/glow.2.7.min.js"></script>
+        <script type="text/javascript" src="glowscript_libraries/split.min.js"></script>
+
+        <button onclick="runCode()">Run</button>
+        <button onclick="saveCode()">Save</button>
+        <a href="VPythonDocs/index.html" target="_blank">Help</a>
+        <button id="export" onclick="exportCode()">Export</button>
+        <form>
+            <input type="file" id="read_local_file" />
+            </form>
+        <script type="text/javascript" src="jg/first.js"></script>
+        <div id="gserrors" style="font-family:Verdana;font-size:13px;color:#c00"></div>
+        <div class="api">
+        <div id="sourcetext" class="split split-horizontal"></div>
+        <div id="glows" class="split split-horizontal"></div>
+        <div id="printing" class="split split-horizontal"></div>
+        </div>
+    </div>
+
+
+<script type="text/javascript" src="jg/third.js"></script>
+
+
+
+///////////
+/////////////   pyInstall
+//////////
+    <script type="text/javascript" src="rapydscript.js"></script>
+  <script>   var compiler = RapydScript.create_embedded_compiler();
+
+////////////////////////create global utilities in python///////////////////////
+eval(compiler.compile(`
+def saveLib(name,content): #save content in the virtual filesystem. Used by CompileThis
+    path = '__stdlib__/' + name
+    RapydScript.file_data[path] = content
+
+def readLib(name): #retrieve and return content
+    path = '__stdlib__/' + name
+    return RapydScript.file_data[path]
+
+def showLib(howMany=-6):
+    for filename in  dir(RapydScript.file_data)[ howMany:]:
+      print(filename)
+
+
+`, options = { 'basedir':'__stdlib__','omit_baselib':true} )) ///////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+async function compileThis(name,content){
+///////////////////////////use saveLib to compile and save//////////////
+  eval(compiler.compile(`saveLib(name,content)`
+    ,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
+}
+
+async function pyInstall(fileName){
+//////////retrieve py files from filesystem, install as pyj///////////
+    const response = await fetch(fileName);
+    const content = await response.text()
+    await console.log('pyInstalling ' + fileName ) //+ ':\n content:\n ' + content)
+    await compileThis(fileName + 'j', content);
+}
+
+
+async function getSource(fileName){
+//////////retrieve py files from filesystem, install as pyj///////////
+    console.log('fetching: ' + fileName + ' ??')
+    const response = await fetch(fileName);
+    const content = await response.text()
+    const source = content
+    const importsFixed= await filterImports(source)
+    return importsFixed
+}
+</script>
+
+<script src="index.js"></script>
+
+
+
+</html>
