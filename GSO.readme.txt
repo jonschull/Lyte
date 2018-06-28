@@ -1,8 +1,0 @@
-the two "working....html" files are worth looking at and work.
-They both allow use of multiple pure python files
-    "working VP getSources and pyInstalls.html" combines two techniques
-    unfortunatlely 
-        the pyInstall technique supports nested imports but not GS
-        the getSource techniques supports GS but not nested imports
-June 21, 2018        
-

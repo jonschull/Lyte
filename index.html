@@ -12,8 +12,7 @@
     </head>
     <body>
     <div>
-        <div>Jon-Glowscript tries to get source from <b>libraries/jon-source.js</b>
-            ; does <b>runCode()</b>
+        <div>INCLUDEs but does not import pure python test.py</b>
              at end. </div>
         <script type="text/javascript" src="glowscript_libraries/Roboto_Medium_ttf_sans.js"></script>
         <script type="text/javascript" src="glowscript_libraries/NimbusRomNo9L_Med_otf_serif.js"></script>
@@ -40,35 +39,62 @@
         </div>
     </div>
 
-<script type="text/javascript" src="glowscript_libraries/jon-source.js"></script>
 
-<script type="text/javascript">
-//
-// function load_js()
-//    {
-//       var head= document.getElementsByTagName('head')[0];
-//       var script= document.createElement('script');
-//       script.src= 'glowscript_libraries/jon-source.js';
-//       head.appendChild(script);
-//    }
-//    load_js();
-
-    if (source===undefined) {var source=''}
-/////////////////////////////////////////////////
-source=source+
-`
-cone()
+<script type="text/javascript" src="jg/third.js"></script>
 
 
 
+///////////
+/////////////   pyInstall
+//////////
+    <script type="text/javascript" src="rapydscript.js"></script>
+  <script>   var compiler = RapydScript.create_embedded_compiler();
 
-`//////////////////////
+////////////////////////create global utilities in python///////////////////////
+eval(compiler.compile(`
+def saveLib(name,content): #save content in the virtual filesystem. Used by CompileThis
+    path = '__stdlib__/' + name
+    RapydScript.file_data[path] = content
+
+def readLib(name): #retrieve and return content
+    path = '__stdlib__/' + name
+    return RapydScript.file_data[path]
+
+def showLib(howMany=-6):
+    for filename in  dir(RapydScript.file_data)[ howMany:]:
+      print(filename)
 
 
+`, options = { 'basedir':'__stdlib__','omit_baselib':true} )) ///////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
+async function compileThis(name,content){
+///////////////////////////use saveLib to compile and save//////////////
+  eval(compiler.compile(`saveLib(name,content)`
+    ,options = {'basedir':'__stdlib__', 'omit_baselib':true} ))
+}
+
+async function pyInstall(fileName){
+//////////retrieve py files from filesystem, install as pyj///////////
+    const response = await fetch(fileName);
+    const content = await response.text()
+    console.log('pyInstalling ' + fileName ) //+ ':\n content:\n ' + content)
+    await compileThis(fileName + 'j', content);
+}
+
+
+async function getSource(fileName){
+//////////retrieve py files from filesystem, install as pyj///////////
+    console.log('fetching: ' + fileName + ' ??')
+    const response = await fetch(fileName);
+    const content = await response.text()
+    source = content
+    return filterImports(source)
+}
 </script>
 
+<script src="index.js"></script>
 
-        <script type="text/javascript" src="jg/third.js"></script>
-    </body>
+
+
 </html>
