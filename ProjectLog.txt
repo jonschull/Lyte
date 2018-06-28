@@ -38,9 +38,10 @@ Log
         to getSource and filterImports to populate the GSO editor
         and then asks GlowScript to runCode()
 
-  June 26.  index.html 
+  June 26.  glitch-compatible index.html created for PPGSO
+    Fetch in glitch was choking on long-named python files
+      (like "PPGSOincrementallayout.html")
 
 
 Other Notes:  Keep these true
-  Folding Text Alt Cmd [ and ]; also ^K and ^L via keyboard maestro
-  Current template is "working dual PPGSO.html" based on PPGSOincrementalLayout
+  Folding Text in Atom Alt Cmd [ and ]; also ^K and ^L via keyboard maestro
